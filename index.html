@@ -2071,28 +2071,7 @@ if(e.key==='Escape'){ fecharBusca(); }
 window.addEventListener('load', async () => {
 garantirAdminPadrao();
 await entrar({name:'Usuário', usuario:'admin', role:'admin'});
-});
-<!-- BUSCA RÁPIDA -->
-<div class="search-overlay" id="searchOverlay" onclick="if(event.target===this)fecharBusca()">
-<div class="search-box">
-<div class="search-input-wrap">
-<span style="color:var(--text-2);font-size:14px">🔍</span>
-<input type="text" id="searchInput" placeholder="Buscar processo, parte, vara, procurador..."
-oninput="renderBusca()" onkeydown="navBusca(event)" autocomplete="off">
-<span style="font-size:11px;color:var(--text-3);cursor:pointer" onclick="fecharBusca()">esc</span>
-</div>
-<div class="search-results" id="searchResults">
-<div class="search-empty">Digite para buscar audiências</div>
-</div>
-<div class="search-footer">
-<span class="search-hint">↑↓ navegar</span>
-<span class="search-hint">↵ abrir</span>
-<span class="search-hint">Ctrl+K abrir</span>
-</div>
-</div>
-</div>
-</body>
-</html>
+
 </script>
 <!-- BUSCA RÁPIDA -->
 <div class="search-overlay" id="searchOverlay" onclick="if(event.target===this)fecharBusca()">
