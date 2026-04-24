@@ -682,7 +682,7 @@ if(error) throw error;
 await sincronizar();
 } catch(e){ setSyncStatus('err','Erro ao salvar: '+e.message); }
 }
-function importarCSVFile(file){
+async function importarCSVFile(file){
 const reader=new FileReader();
 reader.onload=async e=>{
 const lines=e.target.result.split('\n').filter(l=>l.trim());
@@ -845,7 +845,7 @@ const a=document.createElement('a');a.href=url;a.download=`relatorio_audiencias_
 URL.revokeObjectURL(url);
 if(btn){btn.innerHTML='Gerar relatório em PDF';btn.disabled=false;}
 }
-function salvarConfig(){
+async function salvarConfig(){
 CONFIG.ORG_NAME=document.getElementById('cfgOrgao').value.trim();
 CONFIG.PROC_PADRAO=document.getElementById('cfgProcNome').value.trim();
 CONFIG.PROC_WPP=document.getElementById('cfgProcWpp').value.replace(/\D/g,'');
@@ -888,7 +888,7 @@ dados = JSON.parse(JSON.stringify(DADOS_PLANILHA_INICIAL));
 salvarLocal();
 }
 }
-function importarXlsx(file) {
+async function importarXlsx(file) {
 if(!file) return;
 const status = document.getElementById('xlsxStatus');
 const preview = document.getElementById('xlsxPreview');
