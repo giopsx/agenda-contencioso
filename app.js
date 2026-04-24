@@ -1,5 +1,5 @@
 const _imgProxy = new Proxy({}, { set(){ return true; }, get(){ return ''; } });
-<script>
+
 const CONFIG = {
 ORG_NAME:     localStorage.getItem('cfg_org_name')     || 'Subprocuradoria Contenciosa — Município de Porto Velho',
 PROC_PADRAO:  localStorage.getItem('cfg_proc_nome')    || 'Dr. Junior',
