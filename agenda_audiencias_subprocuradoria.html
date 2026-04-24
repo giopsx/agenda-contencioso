@@ -1,0 +1,2633 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agenda de Audiências — Subprocuradoria Contenciosa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+/* ─── RESET & BASE ─── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --sidebar-w: 220px;
+  --navy:   #0A1628;
+  --navy-2: #112240;
+  --navy-3: #1A3356;
+  --accent: #2F80ED;
+  --accent-2: #1A6FD4;
+  --accent-glow: rgba(47,128,237,.18);
+  --green:  #27AE60;
+  --green-bg: rgba(39,174,96,.12);
+  --red:    #EB5757;
+  --red-bg: rgba(235,87,87,.12);
+  --amber:  #F2994A;
+  --amber-bg: rgba(242,153,74,.12);
+  --purple: #9B51E0;
+  --purple-bg: rgba(155,81,224,.12);
+  --text:   #E8EDF5;
+  --text-2: #8FA3BF;
+  --text-3: #4A6080;
+  --border: rgba(255,255,255,.07);
+  --border-2: rgba(255,255,255,.12);
+  --card-bg: #112240;
+  --card-bg-2: #1A3356;
+  --input-bg: rgba(255,255,255,.06);
+  --radius: 10px;
+  --radius-lg: 16px;
+  --shadow: 0 4px 24px rgba(0,0,0,.3);
+  --shadow-sm: 0 2px 8px rgba(0,0,0,.2);
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  background: var(--navy);
+  color: var(--text);
+  font-size: 14px;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--navy-3); border-radius: 3px; }
+
+/* ══════════════════════════════
+   LOGIN
+══════════════════════════════ */
+#loginScreen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--navy);
+  position: relative;
+  overflow: hidden;
+}
+#loginScreen::before {
+  content: '';
+  position: absolute;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(47,128,237,.15) 0%, transparent 70%);
+  top: -100px; left: -100px;
+  pointer-events: none;
+}
+#loginScreen::after {
+  content: '';
+  position: absolute;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(155,81,224,.1) 0%, transparent 70%);
+  bottom: -50px; right: -50px;
+  pointer-events: none;
+}
+.login-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-2);
+  border-radius: 24px;
+  padding: 2.5rem 2rem;
+  width: min(420px, 94vw);
+  box-shadow: 0 32px 80px rgba(0,0,0,.4);
+  position: relative;
+  z-index: 1;
+  animation: loginFade .5s ease;
+}
+@keyframes loginFade { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:none; } }
+
+.login-logo {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 1.5rem;
+}
+.login-logo-icon {
+  width: 48px; height: 48px; border-radius: 14px;
+  background: linear-gradient(135deg, var(--accent), #6366f1);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; flex-shrink: 0;
+  box-shadow: 0 8px 20px rgba(47,128,237,.3);
+}
+.login-logo h1 { font-size: 15px; font-weight: 700; color: var(--text); line-height: 1.3; }
+.login-logo p  { font-size: 11px; color: var(--text-2); margin-top: 2px; }
+
+.login-divider {
+  height: 1px; background: var(--border); margin: 1.5rem 0;
+}
+.login-label {
+  display: block; font-size: 11px; font-weight: 600;
+  color: var(--text-2); text-transform: uppercase; letter-spacing: .06em;
+  margin-bottom: 6px;
+}
+.login-input {
+  width: 100%; background: var(--input-bg);
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius); padding: 10px 14px;
+  font-size: 13px; color: var(--text);
+  font-family: inherit;
+  transition: border-color .2s, box-shadow .2s;
+  margin-bottom: 12px;
+}
+.login-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+.login-input::placeholder { color: var(--text-3); }
+.login-btn {
+  width: 100%; background: var(--accent);
+  color: #fff; border: none; border-radius: var(--radius);
+  padding: 11px; font-size: 14px; font-weight: 700;
+  cursor: pointer; font-family: inherit;
+  transition: background .15s, transform .1s, box-shadow .2s;
+  box-shadow: 0 4px 16px rgba(47,128,237,.4);
+}
+.login-btn:hover { background: var(--accent-2); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(47,128,237,.5); }
+.login-btn:active { transform: none; }
+.login-hint { font-size: 11px; color: var(--text-3); margin-top: 1rem; text-align: center; line-height: 1.6; }
+.login-hint strong { color: var(--text-2); }
+#loginError {
+  display: none; background: var(--red-bg); color: var(--red);
+  font-size: 12px; padding: 8px 12px; border-radius: 8px;
+  margin-top: 10px; border: 1px solid rgba(235,87,87,.2);
+  animation: shake .3s ease;
+}
+@keyframes shake {
+  0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)}
+}
+
+/* ══════════════════════════════
+   APP SHELL — SIDEBAR LAYOUT
+══════════════════════════════ */
+#appShell {
+  display: none;
+  min-height: 100vh;
+  flex-direction: row;
+}
+
+/* ─── SIDEBAR ─── */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--navy-2);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  position: fixed; top: 0; left: 0; height: 100vh;
+  z-index: 100;
+  transition: transform .25s ease;
+}
+.sidebar-logo {
+  padding: 1.25rem 1.2rem 1rem;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+}
+.sidebar-logo-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent), #6366f1);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.sidebar-logo-text h2 { font-size: 12px; font-weight: 700; color: var(--text); line-height: 1.2; }
+.sidebar-logo-text p  { font-size: 10px; color: var(--text-3); margin-top: 1px; }
+
+.sidebar-section { padding: .75rem 0; flex: 1; overflow-y: auto; }
+.sidebar-label {
+  font-size: 10px; font-weight: 700; color: var(--text-3);
+  text-transform: uppercase; letter-spacing: .08em;
+  padding: .5rem 1.2rem .25rem;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 1.2rem; cursor: pointer;
+  font-size: 13px; font-weight: 500; color: var(--text-2);
+  border: none; background: none; width: 100%; text-align: left;
+  border-radius: 0; transition: color .15s, background .15s;
+  position: relative;
+}
+.nav-item:hover { color: var(--text); background: rgba(255,255,255,.04); }
+.nav-item.active {
+  color: var(--accent); background: var(--accent-glow);
+  font-weight: 600;
+}
+.nav-item.active::before {
+  content: ''; position: absolute; left: 0; top: 4px; bottom: 4px;
+  width: 3px; background: var(--accent); border-radius: 0 2px 2px 0;
+}
+.nav-icon { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
+.nav-badge {
+  margin-left: auto; background: var(--red); color: #fff;
+  font-size: 10px; font-weight: 700; padding: 1px 6px;
+  border-radius: 10px; min-width: 18px; text-align: center;
+}
+.nav-badge.amber { background: var(--amber); }
+
+.sidebar-user {
+  padding: 1rem 1.2rem;
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+}
+.sidebar-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--purple));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: #fff; flex-shrink: 0;
+}
+.sidebar-user-info { flex: 1; min-width: 0; }
+.sidebar-user-name { font-size: 12px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sidebar-user-role { font-size: 10px; color: var(--text-3); margin-top: 1px; }
+.sidebar-logout {
+  background: none; border: none; color: var(--text-3);
+  cursor: pointer; padding: 4px; border-radius: 6px;
+  font-size: 14px; transition: color .15s, background .15s;
+  flex-shrink: 0;
+}
+.sidebar-logout:hover { color: var(--red); background: var(--red-bg); }
+
+/* ─── MAIN CONTENT ─── */
+.app-main {
+  margin-left: var(--sidebar-w);
+  flex: 1; display: flex; flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ─── TOP HEADER ─── */
+.app-header {
+  background: var(--navy-2);
+  border-bottom: 1px solid var(--border);
+  padding: .9rem 1.5rem;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; position: sticky; top: 0; z-index: 50;
+}
+.app-header-title { font-size: 16px; font-weight: 700; color: var(--text); }
+.app-header-sub   { font-size: 11px; color: var(--text-3); margin-top: 1px; }
+
+.status-pill {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 20px; padding: 5px 12px; font-size: 11px; color: var(--text-2);
+}
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+.status-dot.spin { animation: pulse 1.2s infinite; background: var(--amber); }
+.status-dot.ok   { background: var(--green); }
+.status-dot.err  { background: var(--red); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.25} }
+
+/* ─── PAGE AREA ─── */
+.page { padding: 1.5rem; display: none; flex-direction: column; gap: 1.25rem; }
+.page.active { display: flex; animation: pageIn .25s ease; }
+@keyframes pageIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+
+.page-header { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: .25rem; }
+.page-title  { font-size: 22px; font-weight: 800; color: var(--text); }
+.page-sub    { font-size: 13px; color: var(--text-2); margin-top: 3px; }
+
+/* ─── STAT CARDS ─── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+}
+.stat-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  position: relative; overflow: hidden;
+  transition: border-color .2s, transform .2s;
+  cursor: default;
+}
+.stat-card:hover { border-color: var(--border-2); transform: translateY(-2px); }
+.stat-card::before {
+  content: ''; position: absolute;
+  top: 0; left: 0; right: 0; height: 3px;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+.stat-card.blue::before   { background: var(--accent); }
+.stat-card.green::before  { background: var(--green); }
+.stat-card.red::before    { background: var(--red); }
+.stat-card.amber::before  { background: var(--amber); }
+.stat-card.purple::before { background: var(--purple); }
+
+.stat-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; margin-bottom: .75rem;
+}
+.stat-card.blue   .stat-icon { background: var(--accent-glow); }
+.stat-card.green  .stat-icon { background: var(--green-bg); }
+.stat-card.red    .stat-icon { background: var(--red-bg); }
+.stat-card.amber  .stat-icon { background: var(--amber-bg); }
+.stat-card.purple .stat-icon { background: var(--purple-bg); }
+
+.stat-label { font-size: 11px; font-weight: 600; color: var(--text-2); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
+.stat-value { font-size: 32px; font-weight: 800; color: var(--text); line-height: 1; }
+.stat-card.blue   .stat-value { color: var(--accent); }
+.stat-card.green  .stat-value { color: var(--green); }
+.stat-card.red    .stat-value { color: var(--red); }
+.stat-card.amber  .stat-value { color: var(--amber); }
+.stat-card.purple .stat-value { color: var(--purple); }
+
+/* ─── ALERTS ─── */
+.alert {
+  font-size: 12px; padding: 10px 16px; border-radius: var(--radius);
+  border: 1px solid; display: flex; align-items: center; gap: 8px;
+}
+.alert.aviso   { background: var(--amber-bg); color: var(--amber); border-color: rgba(242,153,74,.2); }
+.alert.conflito{ background: var(--red-bg); color: var(--red); border-color: rgba(235,87,87,.2); font-weight: 600; }
+.reader-notice { background: var(--amber-bg); color: var(--amber); border: 1px solid rgba(242,153,74,.2); font-size: 12px; padding: 10px 16px; border-radius: var(--radius); display: none; }
+
+/* ─── TOOLBAR ─── */
+.toolbar {
+  display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 12px 14px;
+}
+.toolbar input[type=text], .toolbar input[type=date], .toolbar select {
+  font-size: 13px; padding: 7px 10px;
+  border: 1px solid var(--border-2); border-radius: 8px;
+  background: var(--input-bg); color: var(--text);
+  font-family: inherit; height: 34px;
+  transition: border-color .2s, box-shadow .2s;
+}
+.toolbar input[type=text]:focus, .toolbar input[type=date]:focus, .toolbar select:focus {
+  outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-glow);
+}
+.toolbar input[type=text]::placeholder { color: var(--text-3); }
+.toolbar input[type=file] { display: none; }
+.toolbar select option { background: var(--navy-2); }
+
+/* ─── BUTTONS ─── */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: 8px; font-size: 12px;
+  font-weight: 600; cursor: pointer; border: 1px solid var(--border-2);
+  background: var(--card-bg-2); color: var(--text-2);
+  transition: all .15s; white-space: nowrap; font-family: inherit;
+  height: 34px;
+}
+.btn:hover { color: var(--text); border-color: var(--border-2); background: var(--navy-3); }
+.btn.primary  { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 2px 8px rgba(47,128,237,.3); }
+.btn.primary:hover { background: var(--accent-2); border-color: var(--accent-2); }
+.btn.success  { background: rgba(39,174,96,.15); color: var(--green); border-color: rgba(39,174,96,.3); }
+.btn.success:hover { background: rgba(39,174,96,.25); }
+.btn.danger   { background: var(--red-bg); color: var(--red); border-color: rgba(235,87,87,.3); }
+.btn.danger:hover { background: rgba(235,87,87,.2); }
+.btn.relatorio{ background: var(--purple-bg); color: var(--purple); border-color: rgba(155,81,224,.3); }
+.btn.relatorio:hover { background: rgba(155,81,224,.2); }
+.btn.sm       { height: 28px; padding: 4px 10px; font-size: 11px; }
+
+/* ─── TABLE ─── */
+.table-wrap {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); overflow: hidden;
+}
+table { width: 100%; border-collapse: collapse; }
+thead { background: var(--navy-2); }
+th {
+  font-size: 10px; font-weight: 700; color: var(--text-3);
+  text-transform: uppercase; letter-spacing: .07em;
+  padding: 10px 12px; text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+td {
+  padding: 11px 12px; border-bottom: 1px solid var(--border);
+  font-size: 12px; color: var(--text-2);
+  vertical-align: middle;
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr { transition: background .15s; }
+tbody tr:hover { background: rgba(255,255,255,.03); }
+tbody tr.conflito-row { background: rgba(235,87,87,.05); }
+tbody tr.conflito-row:hover { background: rgba(235,87,87,.08); }
+
+/* ─── BADGES ─── */
+.badge {
+  display: inline-block; font-size: 10px; font-weight: 700;
+  padding: 2px 8px; border-radius: 6px; text-transform: uppercase; letter-spacing: .03em;
+}
+.badge.agendada  { background: var(--accent-glow); color: var(--accent); }
+.badge.realizada { background: var(--green-bg); color: var(--green); }
+.badge.cancelada { background: var(--red-bg); color: var(--red); }
+.badge.remarcada { background: var(--amber-bg); color: var(--amber); }
+
+/* ─── TAGS ─── */
+.tag {
+  display: inline-block; font-size: 9px; font-weight: 800;
+  padding: 1px 6px; border-radius: 4px; margin-left: 4px;
+  text-transform: uppercase; letter-spacing: .04em;
+}
+.tag.hoje   { background: var(--amber-bg); color: var(--amber); }
+.tag.amanha { background: var(--accent-glow); color: var(--accent); }
+.tag.conf   { background: var(--red-bg); color: var(--red); }
+
+/* ─── WPP BUTTON ─── */
+.btn-wpp {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; border-radius: 8px;
+  background: var(--green-bg); border: 1px solid rgba(39,174,96,.25);
+  cursor: pointer; padding: 0; transition: all .15s;
+}
+.btn-wpp:hover { background: rgba(39,174,96,.25); }
+.btn-wpp svg   { width: 15px; height: 15px; }
+.btn-wpp.disabled { opacity: .3; cursor: not-allowed; }
+.btn-wpp.sm { width: 26px; height: 26px; }
+
+/* ─── ICON LINK ─── */
+.icon-link { color: var(--accent); text-decoration: none; font-size: 15px; }
+.icon-link:hover { color: #fff; }
+
+/* ─── EMPTY STATE ─── */
+.empty {
+  text-align: center; padding: 3rem;
+  color: var(--text-3); font-size: 13px;
+}
+.empty::before { content: '📭'; display: block; font-size: 36px; margin-bottom: .75rem; }
+
+/* ─── CARDS ─── */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 1rem;
+  margin-bottom: 10px;
+}
+.conflito-card {
+  background: rgba(235,87,87,.06);
+  border-color: rgba(235,87,87,.2);
+}
+.conflito-card h3 { font-size: 13px; font-weight: 700; color: var(--red); margin-bottom: 8px; }
+.conflito-item { font-size: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.conflito-item:last-child { border: none; }
+
+/* ─── CONFIG SECTION ─── */
+.config-section {
+  background: var(--card-bg);
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 1.25rem; margin-bottom: 1rem;
+}
+.config-section h3 { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 12px; }
+
+/* ─── DIST ROW ─── */
+.dist-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.dist-row:last-child { border: none; }
+.dist-bar-wrap { flex: 2; height: 6px; background: var(--navy-3); border-radius: 3px; overflow: hidden; }
+.dist-fill { height: 100%; background: var(--accent); border-radius: 3px; transition: width .5s; }
+
+/* ─── MODAL ─── */
+.modal-bg {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.6); z-index: 200;
+  align-items: center; justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.modal-bg.open { display: flex; animation: modalIn .2s ease; }
+@keyframes modalIn { from{opacity:0} to{opacity:1} }
+.modal {
+  background: var(--navy-2); border: 1px solid var(--border-2);
+  border-radius: 20px; padding: 1.75rem; width: min(680px, 95vw);
+  max-height: 92vh; overflow-y: auto;
+  box-shadow: 0 24px 64px rgba(0,0,0,.5);
+  animation: modalSlide .25s ease;
+}
+@keyframes modalSlide { from{transform:translateY(20px)} to{transform:none} }
+.modal h2 { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 1.25rem; }
+.modal-footer {
+  display: flex; gap: 8px; justify-content: flex-end;
+  margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--border);
+}
+
+/* ─── FORM ─── */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-full { grid-column: 1/-1; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group label {
+  font-size: 11px; font-weight: 600; color: var(--text-2);
+  text-transform: uppercase; letter-spacing: .05em;
+}
+.form-group input, .form-group select, .form-group textarea {
+  font-size: 13px; padding: 8px 11px;
+  border: 1px solid var(--border-2); border-radius: 8px;
+  background: var(--input-bg); color: var(--text); font-family: inherit;
+  transition: border-color .2s, box-shadow .2s;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+  outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-glow);
+}
+.form-group input::placeholder { color: var(--text-3); }
+.form-group select option { background: var(--navy-2); }
+.form-group textarea { resize: vertical; min-height: 70px; }
+.hint { font-size: 11px; color: var(--text-3); }
+.hint.ok  { color: var(--green); }
+.hint.new { color: var(--amber); }
+
+/* ─── AUTOCOMPLETE ─── */
+.ac-wrap { position: relative; }
+.ac-list {
+  position: absolute; top: 100%; left: 0; right: 0;
+  background: var(--navy-2); border: 1px solid var(--border-2);
+  border-radius: var(--radius); z-index: 300;
+  max-height: 160px; overflow-y: auto; display: none;
+  box-shadow: var(--shadow);
+}
+.ac-item { padding: 8px 12px; font-size: 13px; cursor: pointer; border-bottom: 1px solid var(--border); color: var(--text-2); }
+.ac-item:last-child { border: none; }
+.ac-item:hover { background: var(--navy-3); color: var(--text); }
+.ac-sub { font-size: 11px; color: var(--text-3); }
+
+/* ─── TABLES (users / proc) ─── */
+.users-table, .proc-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.users-table th, .proc-table th {
+  background: var(--navy-2); font-size: 10px; font-weight: 700;
+  color: var(--text-3); padding: 10px 12px; text-align: left;
+  border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: .07em;
+}
+.users-table td, .proc-table td {
+  padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; color: var(--text-2);
+}
+.users-table tr:last-child td, .proc-table tr:last-child td { border: none; }
+.users-table tr:hover td, .proc-table tr:hover td { background: rgba(255,255,255,.02); }
+
+/* ─── READER LOCK ─── */
+.reader-lock { opacity: .35; pointer-events: none; user-select: none; }
+
+/* ─── SPINNER ─── */
+.spinner {
+  display: inline-block; width: 13px; height: 13px;
+  border: 2px solid rgba(255,255,255,.2); border-top-color: #fff;
+  border-radius: 50%; animation: spin .7s linear infinite;
+  vertical-align: middle; margin-left: 6px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ─── REL OPTIONS ─── */
+.rel-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 1rem; }
+.rel-opt { display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; color: var(--text-2); }
+.rel-opt input { accent-color: var(--accent); }
+
+/* ─── DROP ZONE ─── */
+.drop-zone {
+  border: 2px dashed var(--border-2); border-radius: var(--radius-lg);
+  padding: 2.5rem; text-align: center; cursor: pointer;
+  background: var(--input-bg); transition: all .2s;
+}
+.drop-zone:hover, .drop-zone.over {
+  border-color: var(--accent); background: var(--accent-glow);
+}
+.drop-zone-icon { font-size: 40px; margin-bottom: .5rem; }
+.drop-zone h4 { font-size: 14px; font-weight: 700; color: var(--text); }
+.drop-zone p  { font-size: 12px; color: var(--text-3); margin-top: 4px; }
+
+/* ─── MISC ─── */
+.copy-btn {
+  font-size: 11px; background: var(--input-bg); color: var(--text-2);
+  border: 1px solid var(--border-2); border-radius: 4px;
+  padding: 2px 8px; cursor: pointer; margin-left: 6px;
+}
+.copy-btn:hover { background: var(--navy-3); color: var(--text); }
+.mono { font-family: 'JetBrains Mono', monospace; }
+
+
+/* ─── URGÊNCIA ─── */
+.urgencia-vermelho { border-left: 3px solid var(--red) !important; }
+.urgencia-vermelho td:first-child { border-left: 3px solid var(--red); }
+.urgencia-amarelo  { border-left: 3px solid var(--amber) !important; }
+.urgencia-verde    { border-left: 3px solid var(--green) !important; }
+.urgencia-cinza    { border-left: 3px solid var(--text-3) !important; opacity:.7; }
+
+.urg-badge { display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;text-transform:uppercase;letter-spacing:.04em; }
+.urg-badge.v { background:rgba(235,87,87,.18);color:var(--red); }
+.urg-badge.a { background:rgba(242,153,74,.18);color:var(--amber); }
+.urg-badge.g { background:rgba(39,174,96,.18);color:var(--green); }
+.urg-badge.c { background:rgba(74,96,128,.18);color:var(--text-2); }
+
+/* ─── DASHBOARD ─── */
+.dashboard-section { margin-bottom:1.25rem; }
+.dashboard-title { font-size:11px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.6rem; }
+.prox-card {
+  display:flex;align-items:center;gap:10px;
+  padding:10px 14px;background:var(--card-bg);
+  border:1px solid var(--border);border-radius:var(--radius);
+  margin-bottom:6px;cursor:pointer;transition:background .15s;
+}
+.prox-card:hover { background:var(--card-bg-2); }
+.prox-card.urgV { border-left:3px solid var(--red); }
+.prox-card.urgA { border-left:3px solid var(--amber); }
+.prox-card.urgG { border-left:3px solid var(--green); }
+.prox-date-box { text-align:center;min-width:34px; }
+.prox-date-box .dow { font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em; }
+.prox-date-box .dom { font-size:17px;font-weight:800;line-height:1; }
+.prox-date-box.urgV .dow,.prox-date-box.urgV .dom { color:var(--red); }
+.prox-date-box.urgA .dow,.prox-date-box.urgA .dom { color:var(--amber); }
+.prox-date-box.urgG .dow,.prox-date-box.urgG .dom { color:var(--green); }
+.prox-sep { width:1px;height:32px;background:var(--border-2);flex-shrink:0; }
+
+/* ─── CALENDÁRIO ─── */
+.cal-wrap { background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px; }
+.cal-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:10px; }
+.cal-nav { background:none;border:none;color:var(--text-2);font-size:16px;cursor:pointer;padding:2px 8px;border-radius:6px; }
+.cal-nav:hover { background:var(--card-bg-2);color:var(--text); }
+.cal-grid { display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center; }
+.cal-dow { font-size:9px;font-weight:700;color:var(--text-3);padding:3px 0;text-transform:uppercase; }
+.cal-day { font-size:11px;padding:5px 2px;border-radius:6px;cursor:pointer;position:relative;transition:background .12s; }
+.cal-day:hover { background:var(--card-bg-2); }
+.cal-day.hoje { background:var(--accent);color:#fff;font-weight:700; }
+.cal-day.has-aud::after { content:'';width:4px;height:4px;border-radius:50%;background:var(--accent);position:absolute;bottom:2px;left:50%;transform:translateX(-50%); }
+.cal-day.has-conf::after { background:var(--red); }
+.cal-day.hoje::after { background:#fff; }
+.cal-day.outro-mes { color:var(--text-3);opacity:.4; }
+.cal-legend { display:flex;gap:12px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border); }
+.cal-legend-item { display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text-2); }
+.cal-dot { width:6px;height:6px;border-radius:50%; }
+
+/* ─── BUSCA RÁPIDA ─── */
+.search-overlay {
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);
+  z-index:400;align-items:flex-start;justify-content:center;
+  padding-top:15vh;
+}
+.search-overlay.open { display:flex; }
+.search-box { background:var(--navy-2);border:1px solid var(--border-2);border-radius:var(--radius-lg);width:min(560px,94vw);overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.6); }
+.search-input-wrap { display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border); }
+.search-input-wrap input { flex:1;background:none;border:none;font-size:15px;color:var(--text);font-family:inherit; }
+.search-input-wrap input:focus { outline:none; }
+.search-results { max-height:320px;overflow-y:auto; }
+.search-result-item { display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .12s; }
+.search-result-item:hover,.search-result-item.active { background:var(--card-bg-2); }
+.search-result-item:last-child { border:none; }
+.search-empty { padding:24px;text-align:center;color:var(--text-3);font-size:13px; }
+.search-footer { padding:8px 16px;border-top:1px solid var(--border);display:flex;gap:16px; }
+.search-hint { font-size:11px;color:var(--text-3); }
+
+/* ─── INLINE STATUS BUTTONS ─── */
+.status-btns { display:flex;gap:4px;flex-wrap:wrap; }
+.sbtn { font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;cursor:pointer;border:1px solid;transition:all .12s; }
+.sbtn.R { background:rgba(39,174,96,.12);color:var(--green);border-color:rgba(39,174,96,.25); }
+.sbtn.R:hover { background:rgba(39,174,96,.25); }
+.sbtn.C { background:rgba(235,87,87,.12);color:var(--red);border-color:rgba(235,87,87,.25); }
+.sbtn.C:hover { background:rgba(235,87,87,.25); }
+.sbtn.M { background:rgba(242,153,74,.12);color:var(--amber);border-color:rgba(242,153,74,.25); }
+.sbtn.M:hover { background:rgba(242,153,74,.25); }
+
+/* ─── VIEW TOGGLE ─── */
+.view-toggle { display:flex;gap:0;background:var(--card-bg-2);border-radius:8px;padding:2px; }
+.vtbtn { font-size:11px;font-weight:600;padding:4px 12px;border:none;background:none;color:var(--text-2);cursor:pointer;border-radius:6px;transition:all .15s; }
+.vtbtn.active { background:var(--accent);color:#fff; }
+
+/* ─── CARDS VIEW ─── */
+.cards-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px; }
+.aud-card {
+  background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:12px;cursor:pointer;transition:all .15s;
+}
+.aud-card:hover { background:var(--card-bg-2);border-color:var(--border-2); }
+.aud-card.urgV { border-left:3px solid var(--red); }
+.aud-card.urgA { border-left:3px solid var(--amber); }
+.aud-card.urgG { border-left:3px solid var(--green); }
+.aud-card.urgC { opacity:.65; }
+.aud-card-top { display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px; }
+.aud-card-hora { font-size:13px;font-weight:800;color:var(--text); }
+.aud-card-proc { font-size:10px;font-family:monospace;color:var(--text-2);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.aud-card-vara { font-size:11px;color:var(--text-2);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.aud-card-bottom { display:flex;align-items:center;justify-content:space-between;margin-top:6px; }
+
+/* ─── EXPAND ROW ─── */
+.expand-row td { padding:0!important;border:none!important; }
+.expand-inner { padding:12px 16px;background:var(--navy-3);border-bottom:1px solid var(--border); }
+.expand-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-bottom:10px; }
+.expand-field label { font-size:9px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:2px; }
+.expand-field span { font-size:12px;color:var(--text); }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 768px) {
+  :root { --sidebar-w: 0px; }
+  .sidebar { transform: translateX(-220px); }
+  .sidebar.open { transform: translateX(0); width: 220px; }
+  .app-main { margin-left: 0; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .form-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════════
+     TELA DE LOGIN
+══════════════════════════════════════════════════════════════ -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon">⚖️</div>
+      <div>
+        <h1>Subprocuradoria Contenciosa</h1>
+        <p>Agenda de Audiências — Porto Velho</p>
+      </div>
+    </div>
+    <div class="login-divider"></div>
+    <label class="login-label" for="loginUser">Usuário</label>
+    <input class="login-input" type="text" id="loginUser" placeholder="Digite seu usuário"
+      onkeydown="if(event.key==='Enter')document.getElementById('loginSenha').focus()">
+    <label class="login-label" for="loginSenha">Senha</label>
+    <input class="login-input" type="password" id="loginSenha" placeholder="••••••••"
+      onkeydown="if(event.key==='Enter')fazerLogin()">
+    <button class="login-btn" onclick="fazerLogin()">Entrar no sistema</button>
+    <div id="loginError"></div>
+    <p class="login-hint">Acesso padrão: <strong>admin</strong> / <strong>admin123</strong></p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     APP PRINCIPAL
+══════════════════════════════════════════════════════════════ -->
+<div id="appShell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">⚖️</div>
+      <div class="sidebar-logo-text">
+        <h2>Subprocuradoria</h2>
+        <p>Contenciosa — PVH</p>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Painel</div>
+      <button class="nav-item" onclick="switchTab('dashboard')" id="nav-dashboard">
+        <span class="nav-icon">🏠</span> Início
+      </button>
+      <button class="nav-item active" onclick="switchTab('pauta')" id="nav-pauta">
+        <span class="nav-icon">📋</span> Pauta
+      </button>
+      <button class="nav-item" onclick="switchTab('conflitos')" id="nav-conflitos">
+        <span class="nav-icon">⚠️</span> Conflitos
+        <span class="nav-badge" id="navBadgeConflitos" style="display:none">0</span>
+      </button>
+      <button class="nav-item" onclick="switchTab('distribuicao')" id="nav-distribuicao">
+        <span class="nav-icon">📊</span> Por Procurador
+      </button>
+      <button class="nav-item" onclick="switchTab('historico')" id="nav-historico">
+        <span class="nav-icon">🗂️</span> Histórico
+      </button>
+
+      <div class="sidebar-label" style="margin-top:.5rem">Ferramentas</div>
+      <button class="nav-item" onclick="switchTab('relatorio')" id="nav-relatorio">
+        <span class="nav-icon">📄</span> Relatório PDF
+      </button>
+      <button class="nav-item" onclick="switchTab('planilha')" id="nav-planilha">
+        <span class="nav-icon">📥</span> Importar Planilha
+      </button>
+      <button class="nav-item" onclick="switchTab('procuradores')" id="nav-procuradores">
+        <span class="nav-icon">👥</span> Procuradores
+      </button>
+      <button class="nav-item" onclick="switchTab('usuarios')" id="nav-usuarios" style="display:none">
+        <span class="nav-icon">🔐</span> Usuários
+      </button>
+      <button class="nav-item" onclick="switchTab('config')" id="nav-config">
+        <span class="nav-icon">⚙️</span> Configurações
+      </button>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="sidebar-avatar" id="userAvatarText">?</div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name" id="userName">—</div>
+        <div class="sidebar-user-role" id="userRoleBadge">—</div>
+      </div>
+      <button class="sidebar-logout" onclick="logout()" title="Sair">✕</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="app-main">
+
+    <!-- TOP HEADER -->
+    <header class="app-header">
+      <div>
+        <div class="app-header-title" id="pageHeaderTitle">Pauta de Audiências</div>
+        <div class="app-header-sub" id="pageHeaderSub">Visão geral da agenda — <span id="headerDate"></span></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <div class="status-pill">
+          <div class="status-dot spin" id="syncDot"></div>
+          <span id="syncMsg">Carregando...</span>
+          <span id="syncTime" style="color:var(--text-3);font-size:11px"></span>
+        </div>
+        <span id="editorToolbar" style="display:flex;gap:8px">
+          <button class="btn primary" onclick="document.getElementById('fileImport').click()">↑ Importar</button>
+          <input type="file" id="fileImport" accept=".csv,.txt,.pdf" onchange="importarArquivo(event)">
+          <button class="btn success" onclick="abrirModal()">+ Nova audiência</button>
+        </span>
+        <button class="btn" onclick="exportarCSV()">↓ CSV</button>
+        <button class="btn relatorio" onclick="exportarPDFTabela()">↓ PDF</button>
+        <button class="btn" onclick="abrirBusca()" title="Busca rápida (Ctrl+K)">🔍 Ctrl+K</button>
+        <button class="btn" onclick="sincronizar()">↺</button>
+      </div>
+    </header>
+
+
+    <!-- ── DASHBOARD ── -->
+    <div id="tab-dashboard" class="page">
+      <div class="dashboard-section">
+        <div class="row" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:1.25rem">
+          <div class="stat-card amber"><div class="stat-icon">📅</div><div class="stat-label">Hoje</div><div class="stat-value" id="dsHoje">—</div></div>
+          <div class="stat-card blue"><div class="stat-icon">🗓️</div><div class="stat-label">Esta semana</div><div class="stat-value" id="dsSemana">—</div></div>
+          <div class="stat-card red"><div class="stat-icon">⚠️</div><div class="stat-label">Conflitos</div><div class="stat-value" id="dsConflitos">—</div></div>
+          <div class="stat-card green"><div class="stat-icon">✅</div><div class="stat-label">Realizadas</div><div class="stat-value" id="dsRealizadas">—</div></div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 260px;gap:1.25rem;align-items:start">
+        <div>
+          <div class="dashboard-title">Próximas audiências</div>
+          <div id="dashProximas"></div>
+        </div>
+        <div>
+          <div class="dashboard-title">Calendário</div>
+          <div class="cal-wrap">
+            <div class="cal-header">
+              <button class="cal-nav" onclick="calMes(-1)">‹</button>
+              <span style="font-size:13px;font-weight:700" id="calTitulo">—</span>
+              <button class="cal-nav" onclick="calMes(+1)">›</button>
+            </div>
+            <div class="cal-grid" id="calGrid"></div>
+            <div class="cal-legend">
+              <div class="cal-legend-item"><div class="cal-dot" style="background:var(--accent)"></div>Audiência</div>
+              <div class="cal-legend-item"><div class="cal-dot" style="background:var(--red)"></div>Conflito</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PAUTA ── -->
+    <div id="tab-pauta" class="page active">
+      <div id="readerNotice" class="reader-notice">
+        👁️ Você está no modo <strong>Leitor</strong>. Apenas visualização.
+      </div>
+      <div id="alertBars"></div>
+
+      <!-- STATS -->
+      <div class="stats-grid">
+        <div class="stat-card blue">
+          <div class="stat-icon">📋</div>
+          <div class="stat-label">Total</div>
+          <div class="stat-value" id="sTotal">—</div>
+        </div>
+        <div class="stat-card amber">
+          <div class="stat-icon">📅</div>
+          <div class="stat-label">Hoje</div>
+          <div class="stat-value" id="sHoje">—</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-icon">🗓️</div>
+          <div class="stat-label">Esta semana</div>
+          <div class="stat-value" id="sSemana">—</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-icon">✅</div>
+          <div class="stat-label">Realizadas</div>
+          <div class="stat-value" id="sRealizadas">—</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-icon">❌</div>
+          <div class="stat-label">Canceladas</div>
+          <div class="stat-value" id="sCanceladas">—</div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-icon">⚠️</div>
+          <div class="stat-label">Conflitos</div>
+          <div class="stat-value" id="sConflitos">—</div>
+        </div>
+      </div>
+
+      <!-- TOOLBAR -->
+      <div class="toolbar">
+        <input type="text" id="filtroTexto" placeholder="🔍  Buscar processo, parte, vara..." style="flex:1;min-width:180px" oninput="renderTabela()">
+        <input type="date" id="filtroData" onchange="renderTabela()">
+        <select id="filtroSituacao" onchange="renderTabela()">
+          <option value="">Todas as situações</option>
+          <option>Agendada</option><option>Realizada</option><option>Cancelada</option><option>Remarcada</option>
+        </select>
+        <select id="filtroProcurador" onchange="renderTabela()"><option value="">Todos os procuradores</option></select>
+        <div class="view-toggle"><button class="vtbtn active" id="vtTabela" onclick="setView('tabela')">Tabela</button><button class="vtbtn" id="vtCards" onclick="setView('cards')">Cards</button></div>
+      </div>
+
+      <!-- TABLE -->
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th style="width:12%">Nº Processo</th>
+            <th style="width:9%">Data</th>
+            <th style="width:6%">Hora</th>
+            <th style="width:15%">Vara / Juízo</th>
+            <th style="width:10%">Tipo</th>
+            <th style="width:13%">Partes</th>
+            <th style="width:10%">Procurador</th>
+            <th style="width:8%">Situação</th>
+            <th style="width:5%;text-align:center">Link</th>
+            <th style="width:12%" id="colAcoes">Ações</th>
+          </tr></thead>
+          <tbody id="corpoTabela"></tbody>
+        </table>
+      </div>
+      <div id="emptyMsg" class="empty" style="display:none">Nenhuma audiência encontrada.</div>
+      <div id="cardsView" class="cards-grid" style="display:none"></div>
+    </div>
+
+    <!-- ── CONFLITOS ── -->
+    <div id="tab-conflitos" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Conflitos de Horário</div><div class="page-sub">Audiências simultâneas em varas distintas</div></div>
+      </div>
+      <div id="conflitosConteudo"></div>
+    </div>
+
+    <!-- ── DISTRIBUIÇÃO ── -->
+    <div id="tab-distribuicao" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Por Procurador</div><div class="page-sub">Distribuição de audiências por responsável</div></div>
+      </div>
+      <div id="distConteudo"></div>
+    </div>
+
+    <!-- ── HISTÓRICO ── -->
+    <div id="tab-historico" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Histórico</div><div class="page-sub">Audiências realizadas, canceladas e remarcadas</div></div>
+        <select id="histFiltroSit" onchange="renderHistorico()" style="background:var(--card-bg);border:1px solid var(--border-2);color:var(--text-2);padding:8px 12px;border-radius:8px;font-size:13px;font-family:inherit">
+          <option value="Realizada">Realizadas</option>
+          <option value="Cancelada">Canceladas</option>
+          <option value="Remarcada">Remarcadas</option>
+          <option value="">Todas</option>
+        </select>
+      </div>
+      <div id="histConteudo"></div>
+    </div>
+
+    <!-- ── RELATÓRIO ── -->
+    <div id="tab-relatorio" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Relatório PDF</div><div class="page-sub">Gere relatórios detalhados da pauta</div></div>
+      </div>
+      <div class="config-section">
+        <h3>Filtros do relatório</h3>
+        <div class="form-grid" style="margin-bottom:1rem">
+          <div class="form-group"><label>Data inicial</label><input type="date" id="relDataIni"></div>
+          <div class="form-group"><label>Data final</label><input type="date" id="relDataFim"></div>
+          <div class="form-group"><label>Situação</label>
+            <select id="relSituacao"><option value="">Todas</option><option>Agendada</option><option>Realizada</option><option>Cancelada</option><option>Remarcada</option></select>
+          </div>
+          <div class="form-group"><label>Procurador</label>
+            <select id="relProcurador"><option value="">Todos</option></select>
+          </div>
+        </div>
+        <div class="rel-grid">
+          <label class="rel-opt"><input type="checkbox" id="rOpcSumario" checked> Sumário executivo</label>
+          <label class="rel-opt"><input type="checkbox" id="rOpcPauta" checked> Pauta de audiências</label>
+          <label class="rel-opt"><input type="checkbox" id="rOpcConflitos" checked> Conflitos de horário</label>
+          <label class="rel-opt"><input type="checkbox" id="rOpcDistribuicao" checked> Distribuição por procurador</label>
+          <label class="rel-opt"><input type="checkbox" id="rOpcResultados" checked> Resultados e desfechos</label>
+          <label class="rel-opt"><input type="checkbox" id="rOpcObs" checked> Observações registradas</label>
+        </div>
+        <button class="btn relatorio" style="margin-top:.75rem" onclick="gerarRelatorioPDF()" id="btnGerarRel">📄 Gerar relatório em PDF</button>
+      </div>
+    </div>
+
+    <!-- ── PLANILHA ── -->
+    <div id="tab-planilha" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Importar Planilha</div><div class="page-sub">Atualize os dados da agenda via XLSX</div></div>
+      </div>
+      <div class="config-section">
+        <h3>Selecionar arquivo</h3>
+        <p style="font-size:13px;color:var(--text-2);margin-bottom:1rem;line-height:1.6">
+          Anexe o arquivo <strong style="color:var(--text)">PAUTA_DE_AUDIÊNCIAS_2026.xlsx</strong> para carregar ou atualizar os dados.<br>
+          Os dados existentes serão <strong style="color:var(--amber)">substituídos</strong> pelos da planilha.
+        </p>
+        <div class="drop-zone" id="dropZone"
+          onclick="document.getElementById('fileXlsx').click()"
+          ondragover="event.preventDefault();this.classList.add('over')"
+          ondragleave="this.classList.remove('over')"
+          ondrop="event.preventDefault();this.classList.remove('over');importarXlsx(event.dataTransfer.files[0])">
+          <div class="drop-zone-icon">📊</div>
+          <h4>Clique ou arraste o arquivo aqui</h4>
+          <p>Formatos aceitos: .xlsx</p>
+          <input type="file" id="fileXlsx" accept=".xlsx" style="display:none" onchange="importarXlsx(this.files[0]);this.value=''">
+        </div>
+        <div id="xlsxStatus" style="display:none;margin-top:1rem;padding:12px 16px;border-radius:10px;font-size:13px;border:1px solid"></div>
+        <div id="xlsxPreview" style="display:none;margin-top:1rem"></div>
+      </div>
+      <div class="config-section">
+        <h3>Resumo dos dados atuais</h3>
+        <div id="xlsxResumo" style="font-size:13px;color:var(--text-2)">Carregando...</div>
+      </div>
+    </div>
+
+    <!-- ── PROCURADORES ── -->
+    <div id="tab-procuradores" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Procuradores</div><div class="page-sub">Gestão da equipe e WhatsApp</div></div>
+        <button class="btn success editor-only" onclick="abrirModalProc()">+ Novo procurador</button>
+      </div>
+      <div class="table-wrap">
+        <table class="proc-table">
+          <thead><tr><th>Nome</th><th>WhatsApp</th><th>Audiências</th><th>Ações</th></tr></thead>
+          <tbody id="procCorpo"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── USUÁRIOS ── -->
+    <div id="tab-usuarios" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Usuários</div><div class="page-sub">Controle de acesso ao sistema</div></div>
+        <button class="btn success" onclick="abrirModalUsuario()">+ Adicionar usuário</button>
+      </div>
+      <div class="table-wrap">
+        <table class="users-table">
+          <thead><tr><th>Nome</th><th>Usuário (login)</th><th>Perfil</th><th>Adicionado em</th><th>Ações</th></tr></thead>
+          <tbody id="usersCorpo"></tbody>
+        </table>
+      </div>
+      <p style="font-size:12px;color:var(--text-3);margin-top:1rem;line-height:1.7">
+        <strong style="color:var(--text-2)">Leitor:</strong> somente visualização e exportação.<br>
+        <strong style="color:var(--text-2)">Editor:</strong> cadastro, edição e importação.<br>
+        <strong style="color:var(--text-2)">Admin:</strong> acesso completo + gestão de usuários.
+      </p>
+    </div>
+
+    <!-- ── CONFIGURAÇÕES ── -->
+    <div id="tab-config" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Configurações</div><div class="page-sub">Preferências do sistema</div></div>
+      </div>
+      <div class="config-section">
+        <h3>Identificação do órgão</h3>
+        <div class="form-group"><label>Nome do órgão (aparece no relatório)</label>
+          <input type="text" id="cfgOrgao" value="Subprocuradoria Contenciosa — Município de Porto Velho">
+        </div>
+      </div>
+      <div class="config-section">
+        <h3>Procurador padrão</h3>
+        <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+          <div class="form-group" style="flex:1;min-width:180px"><label>Nome</label>
+            <input type="text" id="cfgProcNome" value="Dr. Junior">
+          </div>
+          <div class="form-group" style="flex:1;min-width:180px"><label>WhatsApp (DDD + número)</label>
+            <input type="text" id="cfgProcWpp" value="">
+          </div>
+          <button class="btn primary editor-only" onclick="salvarConfig()">Salvar</button>
+        </div>
+      </div>
+      <div class="config-section" id="cfgSheetSection">
+        <h3>Dados do sistema</h3>
+        <p style="font-size:12px;color:var(--text-2);margin-bottom:12px;line-height:1.6">Os dados são salvos localmente neste navegador. Para backup, exporte em CSV.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn" onclick="sincronizar()">↺ Recarregar dados</button>
+          <button class="btn danger" onclick="limparTodosDados()">🗑 Apagar todos os dados</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /app-main -->
+</div><!-- /appShell -->
+
+<!-- ══════════════════════════════════════════════════════════════
+     MODAIS
+══════════════════════════════════════════════════════════════ -->
+
+<!-- Modal Audiência -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h2 id="modalTitulo">Nova audiência</h2>
+    <div class="form-grid">
+      <div class="form-group"><label>Nº do Processo *</label><input id="fProc" type="text" placeholder="0000000-00.0000.8.22.0000"></div>
+      <div class="form-group"><label>Data *</label><input id="fData" type="date"></div>
+      <div class="form-group"><label>Hora</label><input id="fHora" type="time"></div>
+      <div class="form-group"><label>Vara / Juízo</label><input id="fVara" type="text"></div>
+      <div class="form-group"><label>Tipo de audiência</label>
+        <select id="fTipo"><option>Instrução e Julgamento</option><option>Conciliação</option><option>Mediação</option><option>Inicial</option><option>Designação de perito</option><option>Outra</option></select>
+      </div>
+      <div class="form-group">
+        <label>Procurador responsável</label>
+        <div class="ac-wrap">
+          <input id="fProc2" type="text" autocomplete="off" oninput="acProc(this.value)" onblur="setTimeout(fecharAc,200)">
+          <div class="ac-list" id="acList"></div>
+        </div>
+        <div id="wppHint" class="hint"></div>
+      </div>
+      <div class="form-group form-full"><label>WhatsApp do procurador</label>
+        <input id="fWpp" type="text" placeholder="Ex: 69999990000" oninput="onWppChange()">
+        <div id="wppHint2" class="hint"></div>
+      </div>
+      <div class="form-group form-full"><label>Link de acesso à audiência virtual</label>
+        <input id="fLink" type="url" placeholder="https://meet.google.com/...">
+      </div>
+      <div class="form-group form-full"><label>Partes (Autor / Réu)</label>
+        <input id="fPartes" type="text">
+      </div>
+      <div class="form-group"><label>Situação</label>
+        <select id="fSituacao"><option value="Agendada">Agendada</option><option value="Realizada">Realizada</option><option value="Cancelada">Cancelada</option><option value="Remarcada">Remarcada</option></select>
+      </div>
+      <div class="form-group"><label>Resultado / Desfecho</label>
+        <select id="fResultado"><option value="">—</option><option>Acordo homologado</option><option>Sentença favorável</option><option>Sentença desfavorável</option><option>Adiada</option><option>Sem acordo</option><option>Outra</option></select>
+      </div>
+      <div class="form-group form-full"><label>Observações</label>
+        <textarea id="fObs"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="fecharModal()">Cancelar</button>
+      <button class="btn primary" onclick="salvarAudiencia()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Procurador -->
+<div class="modal-bg" id="modalProcBg">
+  <div class="modal" style="max-width:420px">
+    <h2 id="modalProcTitulo">Novo procurador</h2>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="form-group"><label>Nome completo *</label><input id="pNome" type="text"></div>
+      <div class="form-group"><label>WhatsApp (DDD + número)</label>
+        <input id="pWpp" type="text" placeholder="69988880000">
+        <div class="hint">Somente números. Ex: 69988880000</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="fecharModalProc()">Cancelar</button>
+      <button class="btn primary" onclick="salvarProc()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Usuário -->
+<div class="modal-bg" id="modalUserBg">
+  <div class="modal" style="max-width:440px">
+    <h2 id="modalUserTitulo">Adicionar usuário</h2>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="form-group"><label>Nome *</label><input id="uNome" type="text" placeholder="Ex: Dr. Carlos Menezes"></div>
+      <div class="form-group"><label>Usuário (login) *</label><input id="uEmail" type="text" placeholder="Ex: carlos.menezes">
+        <div class="hint">Usado para login. Sem espaços.</div>
+      </div>
+      <div class="form-group"><label>Senha *</label><input id="uSenha" type="text" placeholder="Ex: Mudar@2024">
+        <div class="hint" id="uSenhaHint">Mínimo 4 caracteres.</div>
+      </div>
+      <div class="form-group"><label>Perfil de acesso</label>
+        <select id="uRole">
+          <option value="leitor">Leitor — somente visualização</option>
+          <option value="editor">Editor — cadastro e edição</option>
+          <option value="admin">Admin — acesso completo + usuários</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="fecharModalUser()">Cancelar</button>
+      <button class="btn primary" onclick="salvarUsuario()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+
+
+<script>
+// Polyfill: hide old avatar img reference (no longer exists)
+const _imgProxy = new Proxy({}, { set(){ return true; }, get(){ return ''; } });
+
+<script>
+// ════════════════════════════════════════════════════════════════
+// CONFIGURAÇÃO — edite aqui após criar suas credenciais Google
+// ════════════════════════════════════════════════════════════════
+const CONFIG = {
+  ORG_NAME:     localStorage.getItem('cfg_org_name')     || 'Subprocuradoria Contenciosa — Município de Porto Velho',
+  PROC_PADRAO:  localStorage.getItem('cfg_proc_nome')    || 'Dr. Junior',
+  PROC_WPP:     localStorage.getItem('cfg_proc_wpp')     || '',
+};
+
+// ════════════════════════════════════════════════════════════════
+// ESTADO GLOBAL
+// ════════════════════════════════════════════════════════════════
+let dados        = [];
+let procuradores = {};
+let usuarios     = [];
+let currentUser  = null;  // { name, email, picture, role }
+let accessToken  = null;
+let editIdx      = null;
+let editProcKey  = null;
+let editUserIdx  = null;
+let lastSync     = null;
+
+const HOJE = new Date(); HOJE.setHours(0,0,0,0);
+
+// ════════════════════════════════════════════════════════════════
+// UTILITÁRIOS
+// ════════════════════════════════════════════════════════════════
+const dataBr   = s => { if(!s) return ''; const p=s.split('-'); return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:s; };
+const dataISO  = s => { if(!s) return ''; const p=s.split('/'); return p.length===3?`${p[2]}-${p[1]}-${p[0]}`:s; };
+const parseData= s => { if(!s) return null; const d=new Date(s+'T00:00:00'); return isNaN(d)?null:d; };
+const normNome = s => (s||'').trim().toLowerCase();
+const hojeISO  = () => HOJE.toISOString().slice(0,10);
+const amanhaISO= () => { const d=new Date(HOJE); d.setDate(d.getDate()+1); return d.toISOString().slice(0,10); };
+const fimSemana= () => { const d=new Date(HOJE); d.setDate(d.getDate()+(6-d.getDay())); return d; };
+function copiar(txt){ navigator.clipboard.writeText(txt).then(()=>alert(`"${txt}" copiado!`)); }
+
+const isEditor = () => currentUser && ['editor','admin'].includes(currentUser.role);
+const isAdmin  = () => currentUser && currentUser.role === 'admin';
+
+function wppDe(nome){
+  const k=normNome(nome);
+  if(procuradores[k]?.wpp) return procuradores[k].wpp;
+  if(k===normNome(CONFIG.PROC_PADRAO)) return CONFIG.PROC_WPP;
+  return '';
+}
+function registrarProcurador(nome,wpp){
+  if(!nome) return;
+  const k=normNome(nome);
+  if(!procuradores[k]) procuradores[k]={nome:nome.trim(),wpp:''};
+  if(wpp && wpp.replace(/\D/g,'').length>=10) procuradores[k].wpp=wpp.replace(/\D/g,'');
+}
+
+// WhatsApp SVG
+const svgWpp=`<svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<circle cx="16" cy="16" r="16" fill="#25D366"/>
+<path d="M23.5 8.5C21.6 6.6 19.1 5.5 16.4 5.5C10.8 5.5 6.2 10.1 6.2 15.7C6.2 17.6 6.7 19.4 7.6 21L6.1 26.5L11.7 25C13.2 25.8 14.8 26.2 16.4 26.2C22 26.2 26.6 21.6 26.6 16C26.6 13.3 25.4 10.8 23.5 8.5ZM16.4 24.4C14.9 24.4 13.5 24 12.2 23.3L11.9 23.1L8.6 24L9.5 20.8L9.3 20.5C8.5 19.1 8.1 17.5 8.1 15.8C8.1 11.2 11.9 7.4 16.5 7.4C18.7 7.4 20.8 8.3 22.3 9.8C23.9 11.3 24.7 13.4 24.7 15.7C24.7 20.3 20.9 24.4 16.4 24.4ZM20.8 17.8C20.6 17.7 19.4 17.1 19.2 17C19 16.9 18.9 16.9 18.7 17.1C18.6 17.3 18.1 17.9 18 18C17.9 18.2 17.7 18.2 17.5 18.1C16.3 17.5 15.5 17 14.7 15.7C14.5 15.4 14.9 15.4 15.2 14.8C15.3 14.7 15.2 14.5 15.2 14.4C15.2 14.3 14.7 13.1 14.5 12.6C14.3 12.1 14.1 12.2 13.9 12.2C13.8 12.2 13.6 12.2 13.5 12.2C13.3 12.2 13 12.3 12.8 12.5C12.6 12.7 12 13.3 12 14.5C12 15.7 12.8 16.8 12.9 17C13 17.1 14.6 19.6 17.1 20.6C19 21.4 19.7 21.3 20.2 21.2C20.9 21.1 22 20.5 22.2 19.9C22.4 19.3 22.4 18.8 22.3 18.7C22.2 18.6 21 18 20.8 17.8Z" fill="white"/>
+</svg>`;
+
+// ════════════════════════════════════════════════════════════════
+// LOGIN LOCAL — SEM GOOGLE
+// ════════════════════════════════════════════════════════════════
+function carregarUsuariosLocal(){
+  try { return JSON.parse(localStorage.getItem('local_usuarios')||'[]'); } catch(e){ return []; }
+}
+function salvarUsuariosLocal(lista){
+  localStorage.setItem('local_usuarios', JSON.stringify(lista));
+}
+function garantirAdminPadrao(){
+  let lista = carregarUsuariosLocal();
+  if(!lista.find(u=>u.usuario==='admin')){
+    lista.push({usuario:'admin', senha:'admin123', nome:'Administrador', role:'admin', data: new Date().toLocaleDateString('pt-BR')});
+    salvarUsuariosLocal(lista);
+  }
+  return lista;
+}
+
+function fazerLogin(){
+  const usr = document.getElementById('loginUser').value.trim();
+  const sen = document.getElementById('loginSenha').value;
+  const err = document.getElementById('loginError');
+  err.style.display='none';
+  if(!usr||!sen){ err.textContent='Preencha usuário e senha.'; err.style.display='block'; return; }
+  const lista = garantirAdminPadrao();
+  const found = lista.find(u=>u.usuario===usr && u.senha===sen);
+  if(!found){ err.textContent='Usuário ou senha incorretos.'; err.style.display='block'; return; }
+  entrar({name: found.nome||found.usuario, usuario: found.usuario, picture:'', role: found.role||'leitor'});
+}
+
+function mostrarErroLogin(msg){
+  const el = document.getElementById('loginError');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function inicializarTelaLogin(){
+  garantirAdminPadrao();
+  document.getElementById('loginUser').value='';
+  document.getElementById('loginSenha').value='';
+  document.getElementById('loginError').style.display='none';
+}
+
+// Funções removidas (Google OAuth) — mantidas como stub para compatibilidade
+function salvarEIniciarLogin(){}
+function redefinirClientId(){}
+function iniciarLoginGoogle(){}
+function buscarPerfilComToken(){}
+function processarLoginGoogle(){}
+function parseJwt(){}
+function salvarConfigInicial(){}
+
+function entrar(user){
+  currentUser = user;
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('appShell').style.display='flex';
+  // Sidebar user info
+  const initials = (user.name||'?').split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
+  const avatarEl = document.getElementById('userAvatarText');
+  if(avatarEl) avatarEl.textContent = initials;
+  document.getElementById('userName').textContent = user.name;
+  const roleBadge = document.getElementById('userRoleBadge');
+  if(roleBadge){ roleBadge.textContent = ({admin:'Admin',editor:'Editor',leitor:'Leitor'}[user.role]||user.role); }
+  if(isAdmin()){ const n=document.getElementById('nav-usuarios'); if(n) n.style.display=''; }
+  // Set header date
+  const hd = document.getElementById('headerDate');
+  if(hd) hd.textContent = new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+  aplicarPermissoes();
+  sincronizar();
+  switchTab('dashboard');
+}
+
+function aplicarPermissoes(){
+  document.querySelectorAll('.editor-only').forEach(el=>{ el.style.display=isEditor()?'':'none'; });
+  const et=document.getElementById('editorToolbar');if(et)et.style.display=isEditor()?'flex':'none';
+  const rn=document.getElementById('readerNotice');if(rn)rn.style.display=isEditor()?'none':'block';
+}
+
+function logout(){
+  currentUser=null; accessToken=null;
+  document.getElementById('appShell').style.display='none';
+  document.getElementById('loginScreen').style.display='flex';
+  const le=document.getElementById('loginError');if(le)le.style.display='none';
+  inicializarTelaLogin();
+}
+
+// ════════════════════════════════════════════════════════════════
+// SETUP INICIAL — sem Google
+// ════════════════════════════════════════════════════════════════
+// (removido — configuração via Google Cloud não é mais necessária)
+
+// ════════════════════════════════════════════════════════════════
+// ARMAZENAMENTO LOCAL (localStorage)
+// ════════════════════════════════════════════════════════════════
+function salvarLocal(){
+  localStorage.setItem('local_audiencias', JSON.stringify(dados));
+  localStorage.setItem('local_procuradores', JSON.stringify(procuradores));
+}
+
+function carregarLocal(){
+  try { dados = JSON.parse(localStorage.getItem('local_audiencias')||'[]'); } catch(e){ dados=[]; }
+  try { procuradores = JSON.parse(localStorage.getItem('local_procuradores')||'{}'); } catch(e){ procuradores={}; }
+  registrarProcurador(CONFIG.PROC_PADRAO, CONFIG.PROC_WPP);
+  // Carregar usuários do sistema local
+  usuarios = carregarUsuariosLocal().map(u=>({nome:u.nome||u.usuario, email:u.usuario, role:u.role, data:u.data||''}));
+}
+
+// ════════════════════════════════════════════════════════════════
+// SINCRONIZAÇÃO — agora usa localStorage
+// ════════════════════════════════════════════════════════════════
+function setSyncStatus(estado, msg){
+  const dot=document.getElementById('syncDot');
+  const txt=document.getElementById('syncMsg');
+  if(!dot||!txt) return;
+  dot.className='status-dot';
+  if(estado==='loading'){dot.classList.add('spin');txt.textContent=msg;}
+  else if(estado==='ok'){dot.classList.add('ok');txt.textContent=msg;const st=document.getElementById('syncTime');if(st)st.textContent=' · '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
+  else{dot.classList.add('err');txt.textContent=msg;}
+}
+
+function sincronizar(){
+  setSyncStatus('loading','Carregando dados...');
+  carregarDadosPlanilha();
+  carregarLocal();
+  setSyncStatus('ok', `Dados carregados — ${dados.length} audiências.`);
+  atualizar();
+  renderUsuarios();
+  atualizarResumoXlsx();
+  renderDashboard();
+}
+
+async function salvarAudienciasNoSheet(){
+  salvarLocal();
+  setSyncStatus('ok','Dados salvos.');
+}
+
+async function salvarProcuradoresNoSheet(){
+  salvarLocal();
+}
+
+async function salvarUsuariosNoSheet(){
+  // Sincronizar de volta para a lista de usuários locais
+  const lista = carregarUsuariosLocal();
+  usuarios.forEach(u=>{
+    const found = lista.find(l=>l.usuario===u.email);
+    if(found){ found.nome=u.nome; found.role=u.role; }
+    else lista.push({usuario:u.email, senha:'123456', nome:u.nome, role:u.role, data:u.data});
+  });
+  salvarUsuariosLocal(lista);
+}
+
+function limparTodosDados(){
+  if(!confirm('Isso apagará TODAS as audiências e procuradores salvos. Deseja continuar?')) return;
+  localStorage.removeItem('local_audiencias');
+  localStorage.removeItem('local_procuradores');
+  dados=[]; procuradores={};
+  registrarProcurador(CONFIG.PROC_PADRAO, CONFIG.PROC_WPP);
+  atualizar();
+  setSyncStatus('ok','Dados apagados.');
+}
+
+function salvarSheetId(){ alert('Conexão com Google Sheets removida. Dados salvos localmente.'); }
+
+// ════════════════════════════════════════════════════════════════
+// LÓGICA DE NEGÓCIO
+// ════════════════════════════════════════════════════════════════
+function detectarConflitos(){
+  const g={};
+  dados.forEach((r,i)=>{
+    if(!r.data||!r.hora||['Cancelada','Realizada'].includes(r.situacao))return;
+    const ch=r.data+'|'+r.hora;
+    if(!g[ch])g[ch]=[];
+    g[ch].push({...r,_idx:i});
+  });
+  const c={};
+  Object.entries(g).forEach(([ch,lista])=>{
+    if([...new Set(lista.map(r=>r.vara))].length>1) c[ch]=lista;
+  });
+  return c;
+}
+function idxsConflito(){
+  const s=new Set();
+  Object.values(detectarConflitos()).forEach(l=>l.forEach(r=>s.add(r._idx)));
+  return s;
+}
+
+function atualizarStats(){
+  const hj=hojeISO(),fs=fimSemana();
+  document.getElementById('sTotal').textContent=dados.length;
+  document.getElementById('sHoje').textContent=dados.filter(r=>r.data===hj).length;
+  document.getElementById('sSemana').textContent=dados.filter(r=>{const d=parseData(r.data);return d&&d>=HOJE&&d<=fs}).length;
+  document.getElementById('sRealizadas').textContent=dados.filter(r=>r.situacao==='Realizada').length;
+  document.getElementById('sCanceladas').textContent=dados.filter(r=>r.situacao==='Cancelada').length;
+  const nc=Object.keys(detectarConflitos()).length;
+  document.getElementById('sConflitos').textContent=nc;
+  const bars=document.getElementById('alertBars'); bars.innerHTML='';
+  const am=amanhaISO();
+  const prox=dados.filter(r=>r.situacao==='Agendada'&&(r.data===hj||r.data===am));
+  if(prox.length) bars.innerHTML+=`<div class="alert aviso">Atenção: ${prox.length} audiência(s) agendada(s) para hoje ou amanhã.</div>`;
+  if(nc) bars.innerHTML+=`<div class="alert conflito">⚠️ Conflito detectado: ${nc} horário(s) com audiências simultâneas em varas distintas.</div>`;
+  // Update sidebar conflict badge
+  const nb=document.getElementById('navBadgeConflitos');
+  if(nb){nb.textContent=nc;nb.style.display=nc>0?'':'none';}
+}
+
+// ════════════════════════════════════════════════════════════════
+// RENDER TABELA
+// ════════════════════════════════════════════════════════════════
+function renderTabela(){
+  const txt=document.getElementById('filtroTexto').value.toLowerCase();
+  const dt =document.getElementById('filtroData').value;
+  const sit=document.getElementById('filtroSituacao').value;
+  const pr =document.getElementById('filtroProcurador').value;
+  const hj =hojeISO(), am=amanhaISO();
+  const cIdx=idxsConflito();
+
+  const filtrado=dados.map((r,i)=>({...r,_idx:i}))
+    .filter(r=>{
+      if(txt&&!(r.processo+r.partes+r.vara+r.procurador).toLowerCase().includes(txt))return false;
+      if(dt&&r.data!==dt)return false;
+      if(sit&&r.situacao!==sit)return false;
+      if(pr&&r.procurador!==pr)return false;
+      return true;
+    })
+    .sort((a,b)=>(a.data||'').localeCompare(b.data||'')||(a.hora||'').localeCompare(b.hora||''));
+
+  document.getElementById('emptyMsg').style.display=filtrado.length===0?'block':'none';
+
+  // ── CARDS VIEW ──
+  if(_viewMode==='cards'){
+    const cv=document.getElementById('cardsView');
+    if(!cv) return;
+    cv.innerHTML='';
+    filtrado.forEach(r=>{
+      const idx=r._idx, isC=cIdx.has(idx);
+      const uc=urgClass(r);
+      const div=document.createElement('div');
+      div.className=`aud-card ${uc}`;
+      div.onclick=()=>{ switchTab('pauta'); setView('tabela'); setTimeout(()=>{ document.getElementById('filtroTexto').value=r.processo; renderTabela(); setTimeout(()=>toggleExpand(idx),150); },50); };
+      div.innerHTML=`
+        <div class="aud-card-top">
+          <span class="aud-card-hora">${r.hora||'—'}</span>
+          <span class="badge ${(r.situacao||'agendada').toLowerCase()}">${r.situacao||'Agendada'}</span>
+        </div>
+        <div class="aud-card-proc">${r.processo||'—'}</div>
+        <div class="aud-card-vara">${r.vara||'—'}</div>
+        <div class="aud-card-bottom">
+          <span style="font-size:11px;color:var(--text-2)">${dataBr(r.data)||'—'}</span>
+          ${urgBadge(r)}
+          ${isC?'<span class="urg-badge v">Conflito</span>':''}
+        </div>`;
+      cv.appendChild(div);
+    });
+    return;
+  }
+
+  // ── TABLE VIEW ──
+  const tbody=document.getElementById('corpoTabela');
+  tbody.innerHTML='';
+
+  filtrado.forEach(r=>{
+    const idx=r._idx, isC=cIdx.has(idx);
+    const u=calcUrgencia(r);
+    let tags='';
+    if(r.situacao==='Agendada'){
+      if(r.data===hj) tags+=`<span class="tag hoje">HOJE</span>`;
+      else if(r.data===am) tags+=`<span class="tag amanha">AMANHÃ</span>`;
+    }
+    if(isC) tags+=`<span class="tag conf">CONFLITO</span>`;
+    const linkHtml=r.link?`<a href="${r.link}" class="icon-link" target="_blank" title="Acessar audiência virtual">🔗</a>`:`<span style="color:var(--text-3)">—</span>`;
+    const tr=document.createElement('tr');
+    const uc=urgClass(r);
+    if(isC) tr.className='conflito-row';
+    tr.dataset.idx=idx;
+    tr.style.cursor='pointer';
+    tr.onclick=(e)=>{ if(e.target.tagName==='BUTTON'||e.target.tagName==='A')return; toggleExpand(idx); };
+    tr.innerHTML=`
+      <td>
+        <div style="display:flex;align-items:center;gap:6px">
+          <div style="width:3px;height:28px;border-radius:2px;background:${u==='vermelho'?'var(--red)':u==='amarelo'?'var(--amber)':u==='verde'?'var(--green)':'var(--text-3)'};flex-shrink:0"></div>
+          <span style="font-size:11px;font-family:monospace">${r.processo||'—'}</span>
+        </div>
+      </td>
+      <td style="font-size:12px">${dataBr(r.data)||'—'}${tags}</td>
+      <td style="font-size:12px">${r.hora||'—'}</td>
+      <td style="font-size:12px">${r.vara||'—'}</td>
+      <td style="font-size:12px">${r.tipo||'—'}</td>
+      <td style="font-size:12px">${(r.partes||'—').slice(0,60)}</td>
+      <td style="font-size:12px">${r.procurador||'—'}</td>
+      <td>
+        <span class="badge ${(r.situacao||'agendada').toLowerCase()}">${r.situacao||'Agendada'}</span>
+        ${urgBadge(r)}
+      </td>
+      <td style="text-align:center">${linkHtml}</td>
+      <td>
+        <span style="font-size:11px;color:var(--text-3)">▸ detalhes</span>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function atualizarFiltroProcurador(){
+  const procs=[...new Set(dados.map(r=>r.procurador).filter(Boolean))].sort();
+  ['filtroProcurador','relProcurador'].forEach(id=>{
+    const sel=document.getElementById(id); if(!sel)return;
+    const val=sel.value;
+    sel.innerHTML='<option value="">Todos</option>';
+    procs.forEach(p=>{const o=document.createElement('option');o.value=p;o.textContent=p;sel.appendChild(o);});
+    sel.value=val;
+  });
+}
+
+// ════════════════════════════════════════════════════════════════
+// RENDER OUTRAS ABAS
+// ════════════════════════════════════════════════════════════════
+function renderConflitos(){
+  const conflitos=detectarConflitos(); const chaves=Object.keys(conflitos).sort();
+  let html='';
+  if(!chaves.length){html='<div class="empty">Nenhum conflito de horário detectado.</div>';}
+  else{
+    html+=`<div class="alert conflito" style="margin-bottom:1rem">${chaves.length} conflito(s) detectado(s). Providencie designação de procurador substituto com antecedência.</div>`;
+    chaves.forEach((ch,i)=>{
+      const lista=conflitos[ch]; const[data,hora]=ch.split('|');
+      html+=`<div class="card conflito-card"><h3>Conflito ${i+1}: ${dataBr(data)} às ${hora} — ${lista.length} audiências em varas distintas</h3>`;
+      lista.forEach(r=>{
+        const temWpp=!!(r.wppProcurador||wppDe(r.procurador));
+        html+=`<div class="conflito-item">
+          <strong>${r.processo||'—'}</strong> — ${r.vara||'—'}<br>
+          <span style="color:var(--text-2)">Partes: ${r.partes||'—'} | Procurador: <strong>${r.procurador||'—'}</strong>${temWpp?' ✓':' — sem WhatsApp'}</span>
+          ${r.link?`<br><a href="${r.link}" target="_blank" style="font-size:12px;color:var(--blue-600)">Acessar link virtual</a>`:''}
+          <div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <button class="btn-wpp sm ${temWpp?'':'disabled'}" onclick="${temWpp?`enviarWpp(${r._idx},'cobertura')`:'void(0)'}" title="Solicitar cobertura por WhatsApp">${svgWpp}</button>
+            <span style="font-size:12px;color:var(--text-2)">Solicitar cobertura</span>
+            ${isEditor()?`<button class="btn sm" onclick="editarAudiencia(${r._idx})">Editar / Designar procurador</button>`:''}
+          </div>
+        </div>`;
+      });
+      html+='</div>';
+    });
+  }
+  document.getElementById('conflitosConteudo').innerHTML=html;
+}
+
+function renderDistribuicao(){
+  const procs={};
+  dados.forEach(r=>{const p=r.procurador||'(não atribuído)';if(!procs[p])procs[p]={total:0,realizadas:0,agendadas:0,canceladas:0};procs[p].total++;procs[p][r.situacao?.toLowerCase()]=(procs[p][r.situacao?.toLowerCase()]||0)+1;});
+  const maxT=Math.max(...Object.values(procs).map(v=>v.total),1);
+  const keys=Object.keys(procs).sort((a,b)=>procs[b].total-procs[a].total);
+  let html='';
+  if(!keys.length){html='<div class="empty">Nenhum dado disponível.</div>';}
+  else{
+    html='<div style="border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;background:#fff"><div style="padding:1rem">';
+    keys.forEach(p=>{
+      const v=procs[p]; const pct=Math.round((v.total/maxT)*100);
+      html+=`<div class="dist-row"><div style="flex:1;font-weight:600">${p}</div><div class="dist-bar-wrap"><div class="dist-fill" style="width:${pct}%"></div></div><div style="color:var(--blue-600);font-weight:700;min-width:28px;text-align:right">${v.total}</div><div style="font-size:11px;color:var(--text-3);min-width:140px;text-align:right">${v.agendadas||0} agend. · ${v.realizadas||0} realiz. · ${v.canceladas||0} canc.</div></div>`;
+    });
+    html+='</div></div>';
+  }
+  document.getElementById('distConteudo').innerHTML=html;
+}
+
+function renderHistorico(){
+  const sit=document.getElementById('histFiltroSit').value;
+  const filtrado=dados.filter(r=>!sit||r.situacao===sit).sort((a,b)=>(b.data||'').localeCompare(a.data||''));
+  let html='';
+  if(!filtrado.length){html='<div class="empty">Nenhuma audiência encontrada.</div>';}
+  else filtrado.forEach(r=>{
+    const idx=dados.indexOf(r); const temWpp=!!(r.wppProcurador||wppDe(r.procurador));
+    html+=`<div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:4px;margin-bottom:6px">
+        <div>
+          <span style="font-size:12px;font-weight:700;font-family:monospace">${r.processo||'—'}</span>
+          <span class="badge ${(r.situacao||'').toLowerCase()}" style="margin-left:8px">${r.situacao||'—'}</span>
+          ${r.resultado?`<span class="badge" style="margin-left:4px;background:var(--bg-2);color:var(--text-2)">${r.resultado}</span>`:''}
+          ${r.link?`<a href="${r.link}" target="_blank" style="color:var(--blue-600);font-size:12px;margin-left:8px">Link virtual</a>`:''}
+        </div>
+        <span style="font-size:12px;color:var(--text-2)">${dataBr(r.data)||'—'} ${r.hora||''}</span>
+      </div>
+      <p style="font-size:12px;font-weight:600;margin-bottom:2px">${r.partes||'—'}</p>
+      <p style="font-size:12px;color:var(--text-2)">${r.vara||'—'} · ${r.tipo||'—'} · ${r.procurador||'—'}</p>
+      ${r.obs?`<p style="font-size:12px;margin-top:6px;border-top:1px solid var(--border);padding-top:6px">${r.obs}</p>`:''}
+      <div style="margin-top:8px;display:flex;align-items:center;gap:8px">
+        <button class="btn-wpp sm ${temWpp?'':'disabled'}" onclick="${temWpp?`enviarWpp(${idx},'aviso')`:'void(0)'}">${svgWpp}</button>
+        <span style="font-size:12px;color:var(--text-2)">Enviar alerta por WhatsApp</span>
+      </div>
+    </div>`;
+  });
+  document.getElementById('histConteudo').innerHTML=html;
+}
+
+function renderProcuradores(){
+  const tbody=document.getElementById('procCorpo');
+  const keys=Object.keys(procuradores).sort((a,b)=>procuradores[a].nome.localeCompare(procuradores[b].nome));
+  if(!keys.length){tbody.innerHTML=`<tr><td colspan="4" class="empty">Nenhum procurador cadastrado.</td></tr>`;return;}
+  tbody.innerHTML='';
+  keys.forEach(k=>{
+    const p=procuradores[k]; const qtd=dados.filter(r=>normNome(r.procurador)===k).length;
+    const isPadrao=normNome(p.nome)===normNome(CONFIG.PROC_PADRAO);
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td style="font-weight:600">${p.nome}${isPadrao?'<span class="badge agendada" style="margin-left:8px;font-size:10px">padrão</span>':''}</td>
+      <td style="font-family:monospace;font-size:12px">${p.wpp?'('+p.wpp.slice(0,2)+') '+p.wpp.slice(2,7)+'-'+p.wpp.slice(7):'—'}</td>
+      <td>${qtd}</td>
+      <td style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        ${isEditor()?`<button class="btn sm" onclick="abrirModalProc('${k}')">Editar</button>`:''}
+        ${p.wpp?`<button class="btn-wpp sm" onclick="testarWpp('${k}')" title="Testar WhatsApp">${svgWpp}</button>`:''}
+        ${isAdmin()?`<button class="btn sm danger" onclick="excluirProc('${k}')">Excluir</button>`:''}
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// ════════════════════════════════════════════════════════════════
+// WHATSAPP
+// ════════════════════════════════════════════════════════════════
+function montarMensagem(r, tipo){
+  const lk=r.link?`\n*Link de acesso:* ${r.link}`:'';
+  const ob=r.obs?`\n*Obs.:* ${r.obs}`:'';
+  if(tipo==='cobertura') return encodeURIComponent(`*SUBPROCURADORIA CONTENCIOSA — SOLICITAÇÃO DE COBERTURA*\n\nPrezado(a) Procurador(a),\n\nSolicita-se cobertura da seguinte audiência por conflito de horário:\n\n*Processo:* ${r.processo||'—'}\n*Data:* ${dataBr(r.data)}\n*Horário:* ${r.hora||'—'}\n*Vara / Juízo:* ${r.vara||'—'}\n*Tipo:* ${r.tipo||'—'}\n*Partes:* ${r.partes||'—'}${lk}${ob}\n\nAguardamos confirmação.\n\n_Subprocuradoria Contenciosa_`);
+  return encodeURIComponent(`*SUBPROCURADORIA CONTENCIOSA — AVISO DE AUDIÊNCIA*\n\n*Procurador(a):* ${r.procurador||CONFIG.PROC_PADRAO}\n*Processo:* ${r.processo||'—'}\n*Data:* ${dataBr(r.data)}\n*Horário:* ${r.hora||'—'}\n*Vara / Juízo:* ${r.vara||'—'}\n*Tipo:* ${r.tipo||'—'}\n*Partes:* ${r.partes||'—'}${lk}${ob}\n\n_Agenda de Audiências — Subprocuradoria Contenciosa_`);
+}
+function enviarWpp(idx, tipo){
+  const r=dados[idx];
+  const num=(r.wppProcurador||wppDe(r.procurador)||CONFIG.PROC_WPP).replace(/\D/g,'');
+  if(!num||num.length<10){alert('WhatsApp não cadastrado. Edite a audiência.');return;}
+  window.open(`https://wa.me/55${num}?text=${montarMensagem(r,tipo)}`,'_blank');
+}
+function testarWpp(k){
+  const p=procuradores[k]; if(!p?.wpp){alert('WhatsApp não cadastrado.');return;}
+  window.open(`https://wa.me/55${p.wpp}?text=${encodeURIComponent('Olá '+p.nome+'. Teste da Agenda de Audiências — Subprocuradoria Contenciosa.')}`,'_blank');
+}
+
+// ════════════════════════════════════════════════════════════════
+// AUTOCOMPLETE PROCURADOR
+// ════════════════════════════════════════════════════════════════
+function acProc(val){
+  const list=document.getElementById('acList');
+  if(!val||val.length<2){list.style.display='none';return;}
+  const m=Object.values(procuradores).filter(p=>p.nome.toLowerCase().includes(val.toLowerCase()));
+  if(!m.length){list.style.display='none';return;}
+  list.innerHTML='';
+  m.forEach(p=>{
+    const item=document.createElement('div'); item.className='ac-item';
+    item.innerHTML=`${p.nome}<br><span class="ac-sub">${p.wpp?'WPP: ('+p.wpp.slice(0,2)+') '+p.wpp.slice(2,7)+'-'+p.wpp.slice(7):'Sem WhatsApp'}</span>`;
+    item.onmousedown=()=>selecionarProc(p);
+    list.appendChild(item);
+  });
+  list.style.display='block';
+}
+function fecharAc(){document.getElementById('acList').style.display='none';}
+function selecionarProc(p){
+  document.getElementById('fProc2').value=p.nome;
+  document.getElementById('fWpp').value=p.wpp||'';
+  document.getElementById('wppHint').className='hint ok';
+  document.getElementById('wppHint').textContent=p.wpp?'WhatsApp encontrado no banco.':'Sem WhatsApp — informe abaixo.';
+  fecharAc();
+}
+function onWppChange(){
+  const nome=document.getElementById('fProc2').value.trim();
+  const wpp=document.getElementById('fWpp').value.replace(/\D/g,'');
+  const h2=document.getElementById('wppHint2');
+  if(wpp.length>=10&&nome){h2.className='hint new';h2.textContent='Número será salvo no banco ao confirmar.';}
+  else h2.textContent='';
+}
+
+// ════════════════════════════════════════════════════════════════
+// MODAIS — AUDIÊNCIA
+// ════════════════════════════════════════════════════════════════
+function abrirModal(idx=null){
+  if(!isEditor()){alert('Seu perfil é de Leitor. Não é possível editar audiências.');return;}
+  editIdx=idx; const r=idx!==null?dados[idx]:{};
+  document.getElementById('modalTitulo').textContent=idx!==null?'Editar audiência':'Nova audiência';
+  document.getElementById('fProc').value=r.processo||'';
+  document.getElementById('fData').value=r.data||'';
+  document.getElementById('fHora').value=r.hora||'';
+  document.getElementById('fVara').value=r.vara||'';
+  document.getElementById('fTipo').value=r.tipo||'Instrução e Julgamento';
+  const nomePr=r.procurador||(idx===null?CONFIG.PROC_PADRAO:'');
+  document.getElementById('fProc2').value=nomePr;
+  document.getElementById('fWpp').value=r.wppProcurador||wppDe(nomePr)||'';
+  document.getElementById('fLink').value=r.link||'';
+  document.getElementById('fPartes').value=r.partes||'';
+  document.getElementById('fSituacao').value=r.situacao||'Agendada';
+  document.getElementById('fResultado').value=r.resultado||'';
+  document.getElementById('fObs').value=r.obs||'';
+  document.getElementById('wppHint').textContent='';
+  document.getElementById('wppHint2').textContent='';
+  document.getElementById('modalBg').classList.add('open');
+}
+function editarAudiencia(idx){abrirModal(idx);}
+function fecharModal(){document.getElementById('modalBg').classList.remove('open');editIdx=null;}
+async function salvarAudiencia(){
+  const proc=document.getElementById('fProc').value.trim();
+  const data=document.getElementById('fData').value;
+  if(!proc||!data){alert('Preencha ao menos o número do processo e a data.');return;}
+  const nomePr=document.getElementById('fProc2').value.trim()||CONFIG.PROC_PADRAO;
+  const wppPr=document.getElementById('fWpp').value.replace(/\D/g,'');
+  registrarProcurador(nomePr,wppPr);
+  const reg={processo:proc,data,hora:document.getElementById('fHora').value,vara:document.getElementById('fVara').value.trim(),tipo:document.getElementById('fTipo').value,procurador:nomePr,wppProcurador:wppPr||wppDe(nomePr),link:document.getElementById('fLink').value.trim(),partes:document.getElementById('fPartes').value.trim(),situacao:document.getElementById('fSituacao').value,resultado:document.getElementById('fResultado').value,obs:document.getElementById('fObs').value.trim(),_rowId:editIdx!==null?dados[editIdx]._rowId:Date.now()};
+  if(editIdx!==null) dados[editIdx]=reg; else dados.push(reg);
+  fecharModal();
+  await salvarAudienciasNoSheet();
+  await salvarProcuradoresNoSheet();
+  atualizar();
+}
+
+// ════════════════════════════════════════════════════════════════
+// MODAIS — PROCURADOR
+// ════════════════════════════════════════════════════════════════
+function abrirModalProc(k=null){
+  if(!isEditor()){alert('Acesso restrito.');return;}
+  editProcKey=k; const p=k?procuradores[k]:{};
+  document.getElementById('modalProcTitulo').textContent=k?'Editar procurador':'Novo procurador';
+  document.getElementById('pNome').value=p.nome||'';
+  document.getElementById('pWpp').value=p.wpp||'';
+  document.getElementById('modalProcBg').classList.add('open');
+}
+function fecharModalProc(){document.getElementById('modalProcBg').classList.remove('open');editProcKey=null;}
+async function salvarProc(){
+  const nome=document.getElementById('pNome').value.trim();
+  const wpp=document.getElementById('pWpp').value.replace(/\D/g,'');
+  if(!nome){alert('Informe o nome.');return;}
+  if(wpp&&wpp.length<10){alert('WhatsApp inválido.');return;}
+  procuradores[normNome(nome)]={nome,wpp};
+  fecharModalProc();
+  await salvarProcuradoresNoSheet();
+  renderProcuradores(); atualizar();
+}
+function excluirProc(k){
+  if(!confirm(`Excluir "${procuradores[k].nome}"?`))return;
+  delete procuradores[k];
+  salvarProcuradoresNoSheet();
+  renderProcuradores();
+}
+
+// ════════════════════════════════════════════════════════════════
+// MODAIS — USUÁRIO (admin only)
+// ════════════════════════════════════════════════════════════════
+function abrirModalUsuario(idx=null){
+  editUserIdx=idx;
+  const lista = carregarUsuariosLocal();
+  const u = idx!==null ? lista[idx] : {};
+  document.getElementById('modalUserTitulo').textContent=idx!==null?'Editar usuário':'Adicionar usuário';
+  document.getElementById('uNome').value=u.nome||'';
+  document.getElementById('uEmail').value=u.usuario||'';
+  document.getElementById('uSenha').value=idx!==null?u.senha||'':'';
+  document.getElementById('uSenhaHint').textContent=idx!==null?'Deixe em branco para manter a senha atual.':'Mínimo 4 caracteres. Informe ao usuário após criar.';
+  document.getElementById('uRole').value=u.role||'leitor';
+  document.getElementById('modalUserBg').classList.add('open');
+}
+function fecharModalUser(){document.getElementById('modalUserBg').classList.remove('open');editUserIdx=null;}
+async function salvarUsuario(){
+  const nome=document.getElementById('uNome').value.trim();
+  const usr=document.getElementById('uEmail').value.trim().replace(/\s/g,'');
+  const senha=document.getElementById('uSenha').value;
+  const role=document.getElementById('uRole').value;
+  if(!nome||!usr){alert('Preencha nome e usuário.');return;}
+  const lista = carregarUsuariosLocal();
+  if(editUserIdx!==null){
+    lista[editUserIdx].nome=nome;
+    lista[editUserIdx].usuario=usr;
+    lista[editUserIdx].role=role;
+    if(senha.length>=4) lista[editUserIdx].senha=senha;
+    else if(senha.length>0 && senha.length<4){alert('Senha muito curta (mínimo 4 caracteres).');return;}
+  } else {
+    if(senha.length<4){alert('Informe uma senha com pelo menos 4 caracteres.');return;}
+    if(lista.find(u=>u.usuario===usr)){alert('Já existe um usuário com esse login.');return;}
+    lista.push({usuario:usr, senha, nome, role, data:new Date().toLocaleDateString('pt-BR')});
+  }
+  salvarUsuariosLocal(lista);
+  usuarios = lista.map(u=>({nome:u.nome||u.usuario, email:u.usuario, role:u.role, data:u.data||''}));
+  fecharModalUser();
+  renderUsuarios();
+}
+function excluirUsuario(idx){
+  const lista = carregarUsuariosLocal();
+  if(lista[idx]?.usuario===currentUser?.usuario){alert('Não é possível remover o próprio usuário.');return;}
+  if(!confirm(`Remover "${lista[idx]?.nome||lista[idx]?.usuario}"?`))return;
+  lista.splice(idx,1);
+  salvarUsuariosLocal(lista);
+  usuarios = lista.map(u=>({nome:u.nome||u.usuario, email:u.usuario, role:u.role, data:u.data||''}));
+  renderUsuarios();
+}
+
+function renderUsuarios(){
+  const tbody=document.getElementById('usersCorpo'); if(!tbody) return;
+  const lista = carregarUsuariosLocal();
+  if(!lista.length){tbody.innerHTML=`<tr><td colspan="5" class="empty">Nenhum usuário cadastrado.</td></tr>`;return;}
+  tbody.innerHTML='';
+  lista.forEach((u,i)=>{
+    const roleTxt={'admin':'Admin','editor':'Editor','leitor':'Leitor'}[u.role]||u.role;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td style="font-weight:600">${u.nome||u.usuario}</td>
+      <td style="font-size:12px;font-family:monospace">${u.usuario}</td>
+      <td><span class="badge ${u.role==='admin'?'agendada':u.role==='editor'?'realizada':'remarcada'}">${roleTxt}</span></td>
+      <td style="font-size:12px;color:var(--text-2)">${u.data||'—'}</td>
+      <td style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn sm" onclick="abrirModalUsuario(${i})">Editar</button>
+        ${u.usuario!==currentUser?.usuario?`<button class="btn sm danger" onclick="excluirUsuario(${i})">Remover</button>`:'<span style="font-size:11px;color:var(--text-3)">você</span>'}
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// ════════════════════════════════════════════════════════════════
+// IMPORTAÇÃO
+// ════════════════════════════════════════════════════════════════
+async function importarArquivo(event){
+  const file=event.target.files[0]; if(!file)return; event.target.value='';
+  if(file.name.toLowerCase().endsWith('.pdf')) await importarPDF(file);
+  else importarCSVFile(file);
+}
+async function importarPDF(file){
+  if(typeof pdfjsLib==='undefined'){alert('Biblioteca PDF não carregada. Tente novamente.');return;}
+  pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  const ab = await file.arrayBuffer();
+  const pdfDoc = await pdfjsLib.getDocument({data:ab}).promise;
+
+  // ── Parser para Pauta de Audiência do PJe ──────────────────────
+  // Cada página tem uma tabela. Reconstruímos as linhas usando posição Y dos itens de texto.
+  const procRe = /\d{7}-\s*\d{2}\.\d{4}\.\d\.\d{2}\.\d{4}/;
+  const dataRe = /^(\d{2})\/(\d{2})\/(\d{2})\s+(\d{2}:\d{2})$/;
+
+  // Nomes das colunas por posição X aproximada (% da largura da página)
+  // Col 0: Data+hora  Col 1: Processo  Col 2: Órgão  Col 3: Partes
+  // Col 4: Classe     Col 5: Tipo      Col 6: Sala   Col 7: Situação
+  const COL_BREAKS = [0, 0.09, 0.19, 0.32, 0.59, 0.68, 0.78, 0.88, 1.01];
+
+  function getCol(x, pageW){ for(let i=0;i<COL_BREAKS.length-1;i++){ if(x/pageW>=COL_BREAKS[i]&&x/pageW<COL_BREAKS[i+1])return i; } return 7; }
+
+  function normProc(s){ return s.replace(/-\s+/,'-'); }
+
+  function mapSit(s){
+    s=(s||'').toLowerCase();
+    if(s.includes('não-realizada')||s.includes('nao-realizada'))return 'Cancelada';
+    if(s.includes('realizada'))return 'Realizada';
+    if(s.includes('redesignada'))return 'Remarcada';
+    return 'Agendada';
+  }
+
+  // Agrupar itens de texto por linha (Y próximo = mesma linha lógica)
+  // Depois agrupar linhas por "grupo de registro" (começa com data+hora)
+  const novos = [];
+  for(let pi=1; pi<=pdfDoc.numPages; pi++){
+    const page = await pdfDoc.getPage(pi);
+    const viewport = page.getViewport({scale:1});
+    const content = await page.getTextContent();
+    const W = viewport.width;
+
+    // Agrupar por Y (tolerância 4pt)
+    const linhaMap = {};
+    for(const item of content.items){
+      if(!item.str.trim()) continue;
+      const y = Math.round(item.transform[5]/4)*4;
+      if(!linhaMap[y]) linhaMap[y] = [];
+      linhaMap[y].push({x: item.transform[4], str: item.str.trim()});
+    }
+    // Ordenar Y decrescente (topo → baixo)
+    const ysOrdenados = Object.keys(linhaMap).map(Number).sort((a,b)=>b-a);
+
+    // Montar registros: cada grupo começa com célula de data+hora
+    let regAtual = null;
+    for(const y of ysOrdenados){
+      const itens = linhaMap[y].sort((a,b)=>a.x-b.x);
+      // Montar células por coluna
+      const celulas = Array(8).fill('');
+      for(const it of itens){
+        const col = getCol(it.x, W);
+        celulas[col] = (celulas[col] ? celulas[col]+' ' : '') + it.str;
+      }
+      // Detecta nova linha de registro: col0 tem "DD/MM/YY HH:MM"
+      const m = dataRe.exec(celulas[0].trim());
+      if(m){
+        if(regAtual) novos.push(regAtual);
+        const ano = 2000+parseInt(m[3]);
+        const dataISO = `${ano}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
+        const pm = procRe.exec(celulas[1]);
+        if(!pm){ regAtual=null; continue; }
+        regAtual = {
+          processo: normProc(pm[0]),
+          data: dataISO, hora: m[4],
+          vara: celulas[2].replace(/Porto Velho\s*-\s*/i,'').trim().slice(0,80),
+          partes: celulas[3].slice(0,200),
+          tipo: celulas[5].replace(/^\d+\.\s*/,'').trim().slice(0,80)||'Instrução e Julgamento',
+          procurador: CONFIG.PROC_PADRAO, wppProcurador: CONFIG.PROC_WPP, link:'',
+          situacao: mapSit(celulas[7]),
+          resultado:'', obs: celulas[6].trim().slice(0,80),
+          _rowId: normProc(pm[0])+'_'+dataISO+'_'+m[4]
+        };
+      } else if(regAtual){
+        // Linha de continuação: acumula nas colunas relevantes
+        for(let c=0;c<8;c++){
+          if(!celulas[c]) continue;
+          if(c===2) regAtual.vara = (regAtual.vara+' '+celulas[c]).trim().slice(0,80);
+          if(c===3) regAtual.partes = (regAtual.partes+' '+celulas[c]).trim().slice(0,200);
+          if(c===5 && !regAtual.tipo.length) regAtual.tipo = celulas[c].replace(/^\d+\.\s*/,'').trim().slice(0,80);
+          if(c===7 && celulas[7]) regAtual.situacao = mapSit(celulas[7]);
+        }
+      }
+    }
+    if(regAtual) novos.push(regAtual);
+  }
+
+  if(!novos.length){
+    alert('Não foi possível identificar audiências neste PDF. Verifique se é uma Pauta de Audiência do PJe.');
+    return;
+  }
+
+  if(!confirm(`Importar ${novos.length} audiência(s) do PDF?\nOs dados serão ADICIONADOS à lista existente (não substitui).`)) return;
+
+  // Deduplicar por _rowId
+  const existentes = new Set(dados.map(d=>d._rowId));
+  const novosUnicos = novos.filter(n=>!existentes.has(n._rowId));
+  dados = [...dados, ...novosUnicos];
+  salvarLocal();
+  atualizar();
+  setSyncStatus('ok', `${novosUnicos.length} audiência(s) importadas do PDF (${novos.length-novosUnicos.length} duplicadas ignoradas).`);
+}
+function importarCSVFile(file){
+  const reader=new FileReader();
+  reader.onload=async e=>{
+    const lines=e.target.result.split('\n').filter(l=>l.trim());
+    if(lines.length<2){alert('Arquivo vazio.');return;}
+    const header=lines[0].split(',').map(h=>h.trim().toLowerCase().replace(/['"]/g,''));
+    const map={processo:['processo','nº processo','numero processo'],data:['data','data audiencia'],hora:['hora','horario'],vara:['vara','juizo','juízo'],tipo:['tipo','tipo audiencia'],partes:['partes','parte','autor'],procurador:['procurador','advogado','responsavel'],link:['link','link audiencia','url'],situacao:['situacao','situação','status'],resultado:['resultado','desfecho'],obs:['obs','observacoes','observações','resumo']};
+    const fc=campo=>{for(const a of map[campo]||[]){const i=header.indexOf(a);if(i>=0)return i;}return-1;};
+    const cols={}; Object.keys(map).forEach(k=>{cols[k]=fc(k);});
+    const novos=[];
+    for(let i=1;i<lines.length;i++){
+      const cells=lines[i].split(',').map(c=>c.trim().replace(/^"|"$/g,''));
+      const get=k=>cols[k]>=0?cells[cols[k]]||'':'';
+      let dv=get('data'); if(dv&&dv.includes('/'))dv=dataISO(dv);
+      const nomePr=get('procurador')||CONFIG.PROC_PADRAO;
+      novos.push({processo:get('processo'),data:dv,hora:get('hora'),vara:get('vara'),tipo:get('tipo'),partes:get('partes'),procurador:nomePr,wppProcurador:wppDe(nomePr),link:get('link'),situacao:get('situacao')||'Agendada',resultado:get('resultado'),obs:get('obs'),_rowId:Date.now()+i});
+    }
+    if(!novos.length){alert('Nenhuma audiência encontrada.');return;}
+    dados=[...dados,...novos];
+    await salvarAudienciasNoSheet();
+    atualizar();
+    alert(`${novos.length} audiência(s) importadas com sucesso.`);
+  };
+  reader.readAsText(file,'UTF-8');
+}
+
+// ════════════════════════════════════════════════════════════════
+// EXPORTAÇÃO
+// ════════════════════════════════════════════════════════════════
+function exportarCSV(){
+  if(!dados.length){alert('Não há dados.');return;}
+  const header=['Processo','Data','Hora','Vara/Juízo','Tipo','Partes','Procurador','WhatsApp','Link','Situação','Resultado','Observações'];
+  const rows=dados.map(r=>[r.processo,dataBr(r.data),r.hora,r.vara,r.tipo,r.partes,r.procurador,r.wppProcurador,r.link,r.situacao,r.resultado,r.obs].map(v=>'"'+(v||'').replace(/"/g,'""')+'"'));
+  const csv=[header,...rows].map(r=>r.join(',')).join('\n');
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=`pauta_${hojeISO()}.csv`;a.click();
+  URL.revokeObjectURL(url);
+}
+function exportarPDFTabela(){ gerarRelatorioPDF(true); }
+
+// ════════════════════════════════════════════════════════════════
+// GERAÇÃO DE RELATÓRIO PDF
+// ════════════════════════════════════════════════════════════════
+async function gerarRelatorioPDF(soPauta=false){
+  if(typeof PDFLib==='undefined'){alert('Biblioteca PDF ainda carregando. Aguarde.');return;}
+  const btn=document.getElementById('btnGerarRel');
+  if(btn){btn.innerHTML='Gerando...<span class="spinner"></span>';btn.disabled=true;}
+  const {PDFDocument,StandardFonts,rgb,PageSizes}=PDFLib;
+  const doc=await PDFDocument.create();
+  const fR=await doc.embedFont(StandardFonts.Helvetica);
+  const fB=await doc.embedFont(StandardFonts.HelveticaBold);
+  const W=PageSizes.A4[0],H=PageSizes.A4[1];
+  const mL=45,mR=45,mT=50,mB=40;
+  const cAzul=rgb(0.05,0.27,0.49),cCinza=rgb(0.55,0.55,0.55),cLinha=rgb(0.88,0.88,0.88);
+  const cVerde=rgb(0.23,0.43,0.07),cVerm=rgb(0.64,0.18,0.18),cAmbar=rgb(0.73,0.46,0.09);
+  let page=doc.addPage([W,H]);let y=H-mT;
+  function rodape(){page.drawText(`${CONFIG.ORG_NAME} | Gerado em ${new Date().toLocaleDateString('pt-BR')} ${new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}`,{x:mL,y:25,size:7,font:fR,color:cCinza});page.drawLine({start:{x:mL,y:35},end:{x:W-mR,y:35},thickness:0.5,color:cLinha});}
+  function novaPg(){page=doc.addPage([W,H]);y=H-mT;rodape();}
+  function ck(n=20){if(y-n<mB)novaPg();}
+  function subtit(txt){ck(24);page.drawText(txt,{x:mL,y,size:11,font:fB,color:cAzul});y-=16;page.drawLine({start:{x:mL,y},end:{x:W-mR,y},thickness:0.5,color:cLinha});y-=8;}
+  function txt(t,sz=9,cor=rgb(.15,.15,.15),xE=0){
+    ck(sz+6);const maxW=W-mL-mR-xE;const words=t.split(' ');let ln='';
+    words.forEach(w=>{const tent=(ln?ln+' ':'')+w;if(fR.widthOfTextAtSize(tent,sz)>maxW&&ln){page.drawText(ln,{x:mL+xE,y,size:sz,font:fR,color:cor});y-=sz+4;ck(sz+4);ln=w;}else ln=tent;});
+    if(ln){page.drawText(ln,{x:mL+xE,y,size:sz,font:fR,color:cor});y-=sz+4;}
+  }
+  const agora=new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
+  // CAPA
+  page.drawRectangle({x:0,y:H-80,width:W,height:80,color:cAzul});
+  page.drawText(CONFIG.ORG_NAME,{x:mL,y:H-35,size:13,font:fB,color:rgb(1,1,1)});
+  page.drawText('RELATÓRIO DE PAUTA DE AUDIÊNCIAS — CONTENCIOSO EM MASSA',{x:mL,y:H-54,size:10,font:fR,color:rgb(.8,.88,.95)});
+  page.drawText(agora,{x:mL,y:H-70,size:9,font:fR,color:rgb(.7,.8,.9)});
+  y=H-110;rodape();
+  // Filtros
+  const dI=document.getElementById('relDataIni')?.value||'';
+  const dF=document.getElementById('relDataFim')?.value||'';
+  const sit2=document.getElementById('relSituacao')?.value||'';
+  const pr2=document.getElementById('relProcurador')?.value||'';
+  let ds=dados.filter(r=>{
+    if(sit2&&r.situacao!==sit2)return false;
+    if(pr2&&r.procurador!==pr2)return false;
+    if(dI&&r.data<dI)return false;
+    if(dF&&r.data>dF)return false;
+    return true;
+  });
+  // SUMÁRIO
+  if(soPauta||document.getElementById('rOpcSumario').checked){
+    subtit('1. Sumário Executivo');
+    txt(dI&&dF?`Período: ${dataBr(dI)} a ${dataBr(dF)}`:'Período: todas as audiências registradas',9,cCinza);y-=4;
+    const total=ds.length,ag=ds.filter(r=>r.situacao==='Agendada').length,re=ds.filter(r=>r.situacao==='Realizada').length,ca=ds.filter(r=>r.situacao==='Cancelada').length;
+    const nc=Object.keys(detectarConflitos()).length;
+    const cW=(W-mL-mR)/4;
+    [[`Total: ${total}`,'Audiências',cAzul],[`${ag}`,'Agendadas',rgb(.07,.37,.65)],[`${re}`,'Realizadas',cVerde],[`${ca}`,'Canceladas',cVerm]].forEach(([v,l,c],i)=>{
+      const x=mL+i*cW;
+      page.drawRectangle({x:x+2,y:y-44,width:cW-8,height:44,color:rgb(.96,.97,.99),borderColor:cLinha,borderWidth:.5});
+      page.drawText(v,{x:x+8,y:y-18,size:16,font:fB,color:c});
+      page.drawText(l,{x:x+8,y:y-32,size:8,font:fR,color:cCinza});
+    });
+    y-=56;
+    if(nc>0){ck(20);page.drawText(`Atenção: ${nc} conflito(s) de horário detectado(s).`,{x:mL,y,size:9,font:fB,color:cAmbar});y-=16;}
+    y-=8;
+  }
+  // PAUTA
+  if(soPauta||document.getElementById('rOpcPauta').checked){
+    subtit('2. Pauta de Audiências');
+    const sorted=ds.sort((a,b)=>(a.data||'').localeCompare(b.data||'')||(a.hora||'').localeCompare(b.hora||''));
+    const cIdx2=idxsConflito();
+    if(!sorted.length){txt('Nenhuma audiência encontrada.');}
+    else sorted.forEach((r,i)=>{
+      const isC=cIdx2.has(dados.indexOf(r));
+      ck(56);
+      page.drawRectangle({x:mL,y:y-50,width:W-mL-mR,height:52,color:isC?rgb(.98,.94,.88):rgb(.97,.98,1),borderColor:isC?cAmbar:cLinha,borderWidth:.5});
+      page.drawText(`${i+1}. Processo: ${r.processo||'—'}`,{x:mL+8,y:y-14,size:9,font:fB,color:cAzul});
+      if(isC)page.drawText('CONFLITO DE HORÁRIO',{x:W-mR-112,y:y-14,size:8,font:fB,color:cAmbar});
+      page.drawText(`Data: ${dataBr(r.data)||'—'}   Hora: ${r.hora||'—'}   Vara: ${(r.vara||'—').slice(0,40)}`,{x:mL+8,y:y-26,size:8,font:fR,color:rgb(.15,.15,.15)});
+      page.drawText(`Partes: ${(r.partes||'—').slice(0,55)}   Tipo: ${r.tipo||'—'}`,{x:mL+8,y:y-37,size:8,font:fR,color:rgb(.15,.15,.15)});
+      page.drawText(`Procurador: ${r.procurador||'—'}   Situação: ${r.situacao||'—'}${r.resultado?' | '+r.resultado:''}`,{x:mL+8,y:y-48,size:8,font:fR,color:cCinza});
+      y-=60;
+    });
+    y-=6;
+  }
+  // CONFLITOS
+  if(!soPauta&&document.getElementById('rOpcConflitos').checked){
+    const conf=detectarConflitos();const chs=Object.keys(conf).sort();
+    subtit('3. Conflitos de Horário');
+    if(!chs.length){txt('Nenhum conflito de horário registrado.');}
+    else{
+      txt(`${chs.length} conflito(s) identificado(s):`,9,cCinza);y-=6;
+      chs.forEach((ch,i)=>{
+        const lista=conf[ch];const[data,hora]=ch.split('|');
+        ck(30+lista.length*26);
+        page.drawText(`Conflito ${i+1}: ${dataBr(data)} às ${hora}`,{x:mL,y,size:9,font:fB,color:cAmbar});y-=14;
+        lista.forEach(r=>{page.drawText(`  Processo ${r.processo||'—'} — ${r.vara||'—'} | Procurador: ${r.procurador||'—'}`,{x:mL,y,size:8,font:fR,color:rgb(.15,.15,.15)});y-=14;});
+        y-=4;
+      });
+    }
+    y-=6;
+  }
+  // DISTRIBUIÇÃO
+  if(!soPauta&&document.getElementById('rOpcDistribuicao').checked){
+    const prcs={};dados.forEach(r=>{const p=r.procurador||'(não atribuído)';if(!prcs[p])prcs[p]={total:0,realizadas:0,agendadas:0,canceladas:0};prcs[p].total++;if(r.situacao==='Realizada')prcs[p].realizadas++;if(r.situacao==='Agendada')prcs[p].agendadas++;if(r.situacao==='Cancelada')prcs[p].canceladas++;});
+    subtit('4. Distribuição por Procurador');
+    const ks=Object.keys(prcs).sort((a,b)=>prcs[b].total-prcs[a].total);
+    if(!ks.length){txt('Nenhum dado disponível.');}
+    else ks.forEach(p=>{
+      const v=prcs[p];ck(20);
+      page.drawText(p,{x:mL,y,size:9,font:fB,color:rgb(.15,.15,.15)});
+      page.drawText(`Total: ${v.total}  |  Agendadas: ${v.agendadas}  |  Realizadas: ${v.realizadas}  |  Canceladas: ${v.canceladas}`,{x:mL+180,y,size:8,font:fR,color:cCinza});
+      y-=16;page.drawLine({start:{x:mL,y:y+4},end:{x:W-mR,y:y+4},thickness:.3,color:cLinha});
+    });
+    y-=6;
+  }
+  // RESULTADOS
+  if(!soPauta&&document.getElementById('rOpcResultados').checked){
+    const real=dados.filter(r=>r.situacao==='Realizada'&&r.resultado);
+    subtit('5. Resultados e Desfechos');
+    if(!real.length){txt('Nenhuma audiência com resultado registrado.');}
+    else{
+      const ct={};real.forEach(r=>{ct[r.resultado]=(ct[r.resultado]||0)+1;});
+      Object.entries(ct).sort((a,b)=>b[1]-a[1]).forEach(([res,qtd])=>{ck(16);page.drawText(`${res}:`,{x:mL,y,size:9,font:fB,color:rgb(.15,.15,.15)});page.drawText(`${qtd} audiência(s)`,{x:mL+180,y,size:9,font:fR,color:cCinza});y-=16;});
+      y-=6;
+      real.slice(0,15).forEach(r=>{ck(40);page.drawText(`Proc. ${r.processo||'—'} — ${dataBr(r.data)}`,{x:mL,y,size:8,font:fB,color:cAzul});y-=12;page.drawText(`Desfecho: ${r.resultado||'—'} | ${r.vara||'—'} | ${r.procurador||'—'}`,{x:mL+8,y,size:8,font:fR,color:cCinza});y-=14;page.drawLine({start:{x:mL,y:y+2},end:{x:W-mR,y:y+2},thickness:.3,color:cLinha});});
+    }
+    y-=6;
+  }
+  // OBSERVAÇÕES
+  if(!soPauta&&document.getElementById('rOpcObs').checked){
+    const obs=dados.filter(r=>r.obs&&r.obs.trim());
+    subtit('6. Observações Registradas');
+    if(!obs.length){txt('Nenhuma observação registrada.');}
+    else obs.forEach(r=>{ck(40);page.drawText(`Proc. ${r.processo||'—'} — ${dataBr(r.data)} ${r.hora||''}`,{x:mL,y,size:8,font:fB,color:cAzul});y-=12;txt(r.obs,8,rgb(.2,.2,.2),8);y-=2;page.drawLine({start:{x:mL,y:y+2},end:{x:W-mR,y:y+2},thickness:.3,color:cLinha});});
+  }
+  const bytes=await doc.save();
+  const blob=new Blob([bytes],{type:'application/pdf'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=`relatorio_audiencias_${hojeISO()}.pdf`;a.click();
+  URL.revokeObjectURL(url);
+  if(btn){btn.innerHTML='Gerar relatório em PDF';btn.disabled=false;}
+}
+
+// ════════════════════════════════════════════════════════════════
+// CONFIG
+// ════════════════════════════════════════════════════════════════
+function salvarConfig(){
+  CONFIG.ORG_NAME=document.getElementById('cfgOrgao').value.trim();
+  CONFIG.PROC_PADRAO=document.getElementById('cfgProcNome').value.trim();
+  CONFIG.PROC_WPP=document.getElementById('cfgProcWpp').value.replace(/\D/g,'');
+  localStorage.setItem('cfg_org_name',CONFIG.ORG_NAME);
+  localStorage.setItem('cfg_proc_nome',CONFIG.PROC_PADRAO);
+  localStorage.setItem('cfg_proc_wpp',CONFIG.PROC_WPP);
+  registrarProcurador(CONFIG.PROC_PADRAO,CONFIG.PROC_WPP);
+  alert('Configurações salvas.');
+  atualizar();
+}
+// ════════════════════════════════════════════════════════════════
+// TABS & ATUALIZAR
+// ════════════════════════════════════════════════════════════════
+function atualizar(){atualizarStats();atualizarFiltroProcurador();renderTabela();}
+
+function switchTab(nome){
+  const nomes=['dashboard','pauta','conflitos','distribuicao','historico','relatorio','planilha','procuradores','usuarios','config'];
+  nomes.forEach(n=>{ const el=document.getElementById('nav-'+n); if(el) el.classList.toggle('active',n===nome); });
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const pg=document.getElementById('tab-'+nome); if(pg) pg.classList.add('active');
+  const titles={dashboard:'Início',pauta:'Pauta de Audiências',conflitos:'Conflitos de Horário',distribuicao:'Por Procurador',historico:'Histórico',relatorio:'Relatório PDF',planilha:'Importar Planilha',procuradores:'Procuradores',usuarios:'Usuários',config:'Configurações'};
+  const ht=document.getElementById('pageHeaderTitle');if(ht)ht.textContent=titles[nome]||nome;
+  if(nome==='dashboard')renderDashboard();
+  if(nome==='conflitos')renderConflitos();
+  if(nome==='distribuicao')renderDistribuicao();
+  if(nome==='historico')renderHistorico();
+  if(nome==='procuradores')renderProcuradores();
+  if(nome==='usuarios')renderUsuarios();
+  if(nome==='planilha')atualizarResumoXlsx();
+  if(nome==='config'){
+    document.getElementById('cfgProcNome').value=CONFIG.PROC_PADRAO;
+    document.getElementById('cfgProcWpp').value=CONFIG.PROC_WPP;
+    document.getElementById('cfgOrgao').value=CONFIG.ORG_NAME;
+  }
+}
+
+// Fechar modais ao clicar fora
+['modalBg','modalProcBg','modalUserBg'].forEach(id=>{
+  document.getElementById(id).addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
+});
+
+
+// ════════════════════════════════════════════════════════════════
+// DADOS INICIAIS DA PLANILHA XLSX
+// ════════════════════════════════════════════════════════════════
+const DADOS_PLANILHA_INICIAL = [{"processo": "7037381-33.2020.8.22.0001", "data": "2026-01-21", "hora": "09:00", "vara": "Porto Velho - 2ª Vara de Fazenda e Saúde Pública", "tipo": "Oitiva", "partes": "ALEXANDRE TABOSA SOBRINHO x CONSTRUTORA IPE LIMITADA e MUNICÍPIO DE PORTO VELHO", "procurador": "Dr. Júnior", "wppProcurador": "", "link": "https://meet.google.com/bks-isbx-zop", "situacao": "Agendada", "resultado": "", "obs": "ASSUNTO: Reintegração de Posse, Requerimento de Reintegração de Posse  DECISÃO: A despeito da tese sustentada, não consta na sentença determinação de demolição da obra, sendo que a controvérsia limitou-se ao reconhecimento — ou não — da posse alegada pelo autor e à existência de esbulho. Diante dess", "_rowId": "7037381-33.2020.8.22.0001_2026-01-21_09:00"}, {"processo": "0012853-98.2013.8.22.0001", "data": "2026-01-22", "hora": "09:00", "vara": "Porto Velho - 1ª Vara de Fazenda e Saúde Pública CUMPRIMENTO DE SENTENÇA", "tipo": "Oitiva/ Esclarecimentos técnicos", "partes": "MPRO - MINISTÉRIO PÚBLICO DO ESTADO DE RONDÔNIA x HENRIQUE FERREIRA DE ALMEIDA e outros (11)", "procurador": "Dr. Moacir", "wppProcurador": "", "link": "", "situacao": "Agendada", "resultado": "", "obs": "ASSUNTO: Subprocuradoria do Meio Ambiente - AÇÃO CIVIL PÚBLICA, com pedido de tutela antecipada  DECISÃO: Em manifestação, o Município elencou uma série de dificuldades técnicas, jurídicas, administrativas e orçamentárias que, segundo ele, têm dificultado a conclusão das medidas necessárias à regula", "_rowId": "0012853-98.2013.8.22.0001_2026-01-22_09:00"}, {"processo": "7004259-53.2025.8.22.0001", "data": "2026-01-22", "hora": "11:00", "vara": "Porto Velho - 2ª Vara de Fazenda e Saúde Pública", "tipo": "Oitiva - Produção de Prova Testemunhal", "partes": "ALO PROTECAO VEICULAR\nX\nMUNICIPIO DE PORTO VELHO", "procurador": "Dr. Junior", "wppProcurador": "", "link": "https://meet.google.com/iqd-dnjy-nbo", "situacao": "Agendada", "resultado": "", "obs": "ASSUNTO: Ação Regressiva de Ressarcimento por Danos Materiais em face do Município.  DECISÃO: Considerando que ambas as partes requereram a produção de prova testemunhal, e que os pontos controvertidos envolvem aspectos fáticos relacionados à dinâmica do acidente, à existência de sinalização e às co", "_rowId": "7004259-53.2025.8.22.0001_2026-01-22_11:00"}, {"processo": "7062260-31.2025.8.22.0001", "data": "2026-01-29", "hora": "09:00", "vara": "Porto Velho - 2ª Vara de Fazenda e Saúde Pública - AÇÃO CIVIL PÚBLICA", "tipo": "Instrução", "partes": "MPRO - MINISTÉRIO PÚBLICO DO ESTADO DE RONDÔNIA\nX\nMUNICIPIO DE PORTO VELHO e Microrregião de Águas e Esgotos do Estado de Rondônia", "procurador": "Dr. Moacir", "wppProcurador": "", "link": "https://meet.google.com/cqk-hbuj-cih", "situacao": "Agendada", "resultado": "", "obs": "ASSUNTO: Subprocuradoria do Meio Ambiente - Ação Regressiva de Ressarcimento por Danos Materiais em face do Município.  DECISÃO: Designada Audiência para examinar o pedido de Tutela de Urgência, requerida pelo Ministério Público: '' Nesse sentido, tenho que a tutela requerida possui necessariamente ", "_rowId": "7062260-31.2025.8.22.0001_2026-01-29_09:00"}, {"processo": "7068696-06.2025.8.22.0001", "data": "2026-01-29", "hora": "11:00", "vara": "Porto Velho - 2ª Vara de Fazenda e Saúde Pública", "tipo": "Instrução", "partes": "COOPERATIVA DE ECONOMIA E CREDITO MUTUO DOS INTEGRANTES DAS CARREIRAS JURIDICAS E DOS SERVENTUARIOS DE ORGAOS DA JUSTICA E AFINS, RONDONIA - CREDJURD\nX\nMUNICIPIO DE PORTO VELHO", "procurador": "Dr. Junior", "wppProcurador": "", "link": "https://meet.google.com/ipc-qigw-kpf", "situacao": "Agendada", "resultado": "", "obs": "ASSUNTO:OBRIGAÇÃO DE FAZER C/C PEDIDO DE TUTELA PROVISÓRIA DE URGÊNCIA DECISÃO: INDEFIRERIDO o pedido de reconsideração, mantendo a decisão que negou a Tutela Provisória de Urgência. Ainda, considerando que para a formação do juízo de convencimento, o feito merece uma análise mais aprofundada, deven", "_rowId": "7068696-06.2025.8.22.0001_2026-01-29_11:00"}, {"processo": "7029796-32.2017.8.22.0001", "data": "2026-02-05", "hora": "08:00", "vara": "Porto Velho - 8ª Vara Cível", "tipo": "Mediação", "partes": "Instituto Educar e outros x Lagoa Azul Empreendimentos Imobiliários, Eireli, Juliany Pinheiro Camara de Macedo, Tamires Lima da Silva, Maria Carlinda Noetzold, Cicera Daniele Amorim Passos, Marco Aurelio Versutti - CEJUSC", "procurador": "Dr. Júnior", "wppProcurador": "", "link": "", "situacao": "Agendada", "resultado": "", "obs": "Audiência de Conciliação a fim de esclarecer o andamento das tratativas de doação da área e regularização fundiária aos interessados", "_rowId": "7029796-32.2017.8.22.0001_2026-02-05_08:00"}, {"processo": "7062627-55.2025.8.22.0001", "data": "2026-02-09", "hora": "09:00", "vara": "Porto Velho - 1ª Vara de Fazenda e Saúde Pública - AÇÃO CIVIL PÚBLICA -", "tipo": "Instrução", "partes": "MPRO - MINISTÉRIO PÚBLICO DO ESTADO DE RONDÔNIA x ROSALIA ARAUJO e outros (2)", "procurador": "Dr. Moacir", "wppProcurador": "", "link": "https://meet.google.com/xyp-kigt-wgy", "situacao": "Agendada", "resultado": "", "obs": "ASSUNTO: Subprocuradoria do Meio Ambiente - AÇÃO CIVIL PÚBLICA (Medida Protetiva Cível na defesa de pessoa idosa em situação de vulnerabilidade)                                                                                                                                               DECISÃO:Diant", "_rowId": "7062627-55.2025.8.22.0001_2026-02-09_09:00"}, {"processo": "7020684-58.2025.8.22.0001", "data": "2026-02-11", "hora": "09:00", "vara": "Porto Velho - 2ª Vara de Fazenda e Saúde Pública - AÇÃO CIVIL PÚBLICA", "tipo": "Instrução e Julgamento", "partes": "DEFENSORIA PÚBLICA DO ESTADO DE RONDÔNIA\nX\nMUNICIPIO DE PORTO VELHO e outros (1)", "procurador": "Dr. Moacir", "wppProcurador": "", "link": "https://meet.google.com/vnf-hinx-dfo", "situacao": "Agendada", "resultado": "", "obs": "ASSUNTO: Subprocuradoria do Meio Ambiente - AÇÃO CIVIL PÚBLICA - Regularização Fundiária  DECISÃO: audiência de conciliação/mediação, a fim de possibilitar que as partes esclareçam pontos controvertidos, apresentem suas posições de forma estruturada e, se possível, construam solução consensual para ", "_rowId": "7020684-58.2025.8.22.0001_2026-02-11_09:00"}, {"processo": "7052137-08.2024.8.22.0001", "data": "2026-02-11", "hora": "09:15", "vara": "Porto Velho - 6ª Vara Cível - USUCAPIÃO - Instrução e Julgamento", "tipo": "Instrução e Julgamento", "partes": "IRENE CHEREM DE ARAUJO PEREIRA e outros (1)\nX\nESPÓLIO DE ODILON ANTONIO PEREIRA registrado(a) civilmente como ODILON ANTONIO PEREIRA", "procurador": "Dr. Júnior", "wppProcurador": "", "link": "", "situacao": "Agendada", "resultado": "", "obs": "ASSUNTO: Usucapião - Av. Alexandre Guimarães                                                                                            DECISÃO: audiência de instrução e julgamento para oitiva das três primeiras testemunhas constantes no rol apresentado pela parte autora", "_rowId": "7052137-08.2024.8.22.0001_2026-02-11_09:15"}, {"processo": "7046208-91.2024.8.22.0001", "data": "2026-02-24", "hora": "09:00", "vara": "Porto Velho - 2ª Vara de Fazenda e Saúde Pública - PROCEDIMENTO COMUM CÍVEL", "tipo": "Instrução", "partes": "PAMELA DA SILVA LOPES e outros (1)\nX\nMUNICIPIO DE PORTO VELHO e outros (1)", "procurador": "Dr. Júnior", "wppProcurador": "", "link": "https://meet.google.com/dst-wnbd-tmq", "situacao": "Agendada", "resultado": "", "obs": "ASSUNTO: Ação de Indenização por Danos Morais e Materiais - ERROS MÉDICO – MORTE DE FETO  DECISÃO: Deferido o pedido da requerente de prova testemunhal; designação de audiência para a oitiva de testemunhas e esclarecimento de pontos controversos", "_rowId": "7046208-91.2024.8.22.0001_2026-02-24_09:00"}, {"processo": "7037942-81.2025.8.22.0001", "data": "2026-02-24", "hora": "11:00", "vara": "Porto Velho - 2ª Vara de Fazenda e Saúde Pública", "tipo": "Conciliação, Instrução e Julgamento", "partes": "MILTON MATEUS DA SILVA\nX\nMUNICIPIO DE PORTO VELHO", "procurador": "Dr. Júnior", "wppProcurador": "", "link": "https://meet.google.com/hpr-enoz-jwo", "situacao": "Agendada", "resultado": "", "obs": "ASSUNTO: Ação de Cobrança pretendendo o reconhecimento do desvio de função e pagamento dos valores retroativos da Gratificação Específica   DECISÃO: Deferido o pedido de prova testemunhal; designação de audiência para a oitiva de testemunhas: Ronei, Valteir, Francisco e Luiz", "_rowId": "7037942-81.2025.8.22.0001_2026-02-24_11:00"}, {"processo": "7004259-53.2025.8.22.0001", "data": "2026-03-04", "hora": "09:00", "vara": "2ª Vara de Fazenda e Saúde Pública - PROCEDIMENTO COMUM CÍVEL  -", "tipo": "Oitiva de Testemunha", "partes": "ALO PROTECAO VEICULAR\nX\nMUNICIPIO DE PORTO VELHO", "procurador": "Dr. Junior", "wppProcurador": "", "link": "https://meet.google.com/iqd-dnjy-nbo", "situacao": "Agendada", "resultado": "", "obs": "ASSUNTO: Ação Regressiva de Ressarcimento por Danos Materiais em face do Município. ACIDENTE DE TRÂNSITO  DECISÃO: Inicialmente, foi realizada audiência de instrução para a oitiva das testemunhas no dia 22 de janeiro de 2026 às 11:00 horas. No entando, em decorrência da ausência da testemunha Andre ", "_rowId": "7004259-53.2025.8.22.0001_2026-03-04_09:00"}, {"processo": "7029796-32.2017.8.22.0001", "data": "2026-03-17", "hora": "08:00", "vara": "Porto Velho - 8ª Vara Cível - AÇÃO CIVIL COLETIVA  -", "tipo": "MEDIAÇÃO", "partes": "INSTITUTO EDUCAR e outros (249)\nX\nLAGOA AZUL EMPREENDIMENTOS IMOBILIARIOS EIRELI e outros (5)", "procurador": "Dr. Junior", "wppProcurador": "", "link": "", "situacao": "Agendada", "resultado": "", "obs": "ASSUNTO: AÇÃO CIVIL COLETIVA - Regularização Fundiária  DECISÃO: Em audiência anteriormente realizada em 05/02/2026, as partes concordaram em participar de uma outra sessão a ser realizada de forma virtual no dia 17.03.2026, às 8h. Ressalte-se que a nova sessão será realizada apenas com SEMUR/SEMDEC", "_rowId": "7029796-32.2017.8.22.0001_2026-03-17_08:00"}, {"processo": "7006264-48.2025.8.22.0001", "data": "2026-03-24", "hora": "11:00", "vara": "Porto Velho - 2ª Vara de Fazenda e Saúde Pública - PROCEDIMENTO COMUM CÍVEL", "tipo": "Instrução", "partes": "RENATO FARIAS DA CUNHA e outros (2)\nX\nMUNICIPIO DE PORTO VELHO", "procurador": "Dr. Junior", "wppProcurador": "", "link": "https://meet.google.com/pnb-fkfo-nbm", "situacao": "Agendada", "resultado": "", "obs": "ASSUNTO: Ação Indenizatória por Danos Morais com Pedido de Pensão -  Acidente de Trânsito  DECISÃO: Deferido o pedido da parte pela produção de Prova Testemunhal do Comandante CB PM Cassiano Baptista da Silva Filho. Ressalta-se que o Município manifestou ausência de interesse na produção de provas e", "_rowId": "7006264-48.2025.8.22.0001_2026-03-24_11:00"}, {"processo": "7050875-04.2016.8.22.0001", "data": "2026-03-26", "hora": "09:00", "vara": "Porto Velho - 2ª Vara de Fazenda e Saúde Pública - CUMPRIMENTO DE SENTENÇA", "tipo": "Conciliação", "partes": "AVANY RODRIGUES ANDRADE\nX\nMUNICIPIO DE PORTO VELHO", "procurador": "Dr. Junior", "wppProcurador": "", "link": "https://meet.google.com/jgr-fbbo-ffg", "situacao": "Agendada", "resultado": "", "obs": "ASSUNTO: Obrigação de fazer consistente na entrega de unidade habitacional à parte exequente  DECISÃO: A parte exequente alega que o Município embora o Município alegue ter procedido à entrega formal do imóvel, não foi possível o exercício da posse, uma vez que o bem estaria ocupado por terceiros, c", "_rowId": "7050875-04.2016.8.22.0001_2026-03-26_09:00"}, {"processo": "0021817-17.2012.8.22.0001", "data": "2026-05-26", "hora": "09:00", "vara": "Porto Velho - 2ª Vara de Fazenda e Saúde Pública - AÇÃO CIVIL DE IMPROBIDADE ADMINISTRATIVA -", "tipo": "64", "partes": "MPRO - MINISTÉRIO PÚBLICO DO ESTADO DE RONDÔNIA e outros (1)\nX\nRONIELE CABRAL MEDEIROS DE MENEZES e outros (14)", "procurador": "Dr. Junior", "wppProcurador": "", "link": "https://meet.google.com/vzp-oxko-qxw", "situacao": "Agendada", "resultado": "", "obs": "ASSUNTO: AÇÃO CIVIL DE IMPROBIDADE ADMINISTRATIVA   OBSERVAÇÃO: Audiência designada para oitiva das seguintes testemunhas: Nilsa Almeida Costa e Rozalino Pereira (indicados pela requerida); FRACISCO RÉGIS XIMENES DE ALMEIDA, ELIANE MORALES NEVES e ARLETE MARIA DA SILVA E SOUZA, servidores do Tribuna", "_rowId": "0021817-17.2012.8.22.0001_2026-05-26_09:00"}, {"processo": "7042489-82.2016.8.22.0001", "data": "2026-04-07", "hora": "09:00", "vara": "2ª Vara de Fazenda e Saúde Pública", "tipo": "Instrução", "partes": "CAMARA MUNICIPAL DE PORTO VELHO - CNPJ: 04.107.678/0001-29 (REQUERENTE) X MUNICIPIO DE PORTO VELHO - CNPJ: 05.903.125/0001-45 (REQUERIDO)", "procurador": "Dr. Junior", "wppProcurador": "", "link": "", "situacao": "Remarcada", "resultado": "", "obs": "2ª Vara de Fazenda Pública", "_rowId": "7042489-82.2016.8.22.0001_2026-04-07_09:00"}, {"processo": "7022598-94.2024.8.22.0001", "data": "2026-04-07", "hora": "11:00", "vara": "2ª Vara de Fazenda e Saúde Pública", "tipo": "Instrução", "partes": "MPRO - MINISTÉRIO PÚBLICO DO ESTADO DE RONDÔNIA - CNPJ: 04.381.083/0001-67 (AUTOR) X MUNICIPIO DE PORTO VELHO - CNPJ: 05.903.125/0001-45 (REU)", "procurador": "Dr. Junior", "wppProcurador": "", "link": "", "situacao": "Remarcada", "resultado": "", "obs": "2ª Vara de Fazenda Pública", "_rowId": "7022598-94.2024.8.22.0001_2026-04-07_11:00"}, {"processo": "7067550-61.2024.8.22.0001", "data": "2026-04-14", "hora": "09:00", "vara": "2ª Vara de Fazenda e Saúde Pública", "tipo": "Oitiva", "partes": "MARLUCIA BORGES DA SILVA - CPF: 290.272.092-00 (EMBARGANTE) X MUNICIPIO DE PORTO VELHO - CNPJ: 05.903.125/0001-45 (EMBARGADO)", "procurador": "Dr. Junior", "wppProcurador": "", "link": "", "situacao": "Realizada", "resultado": "", "obs": "2ª Vara de Fazenda Pública", "_rowId": "7067550-61.2024.8.22.0001_2026-04-14_09:00"}, {"processo": "7046208-91.2024.8.22.0001", "data": "2026-04-07", "hora": "09:00", "vara": "2ª Vara de Fazenda e Saúde Pública", "tipo": "Instrução", "partes": "PAMELA DA SILVA LOPES - CPF: 003.497.492-05 (AUTOR) e IVANILDO DA SILVA GOMES - CPF: 897.421.922-00 (AUTOR) X MUNICIPIO DE PORTO VELHO - CNPJ: 05.903.125/0001-45 (REU) e ESTADO DE RONDONIA - CNPJ: 00.", "procurador": "Dr. Junior", "wppProcurador": "", "link": "", "situacao": "Remarcada", "resultado": "", "obs": "2ª Vara de Fazenda Pública", "_rowId": "7046208-91.2024.8.22.0001_2026-04-07_09:00"}, {"processo": "7062148-62.2025.8.22.0001", "data": "2026-04-07", "hora": "09:00", "vara": "1º Juizado Especial da Fazenda Pública", "tipo": "Instrução e Julgamento", "partes": "PEDRO HENRIQUE MEDEIROS DUTRA - CPF: 707.972.884-30 (REQUERENTE) X MUNICIPIO DE PORTO VELHO - CNPJ: 05.903.125/0001-45 (REQUERIDO)", "procurador": "Dr. Junior", "wppProcurador": "", "link": "", "situacao": "Realizada", "resultado": "", "obs": "Instrução e Julgamento JEFAP", "_rowId": "7062148-62.2025.8.22.0001_2026-04-07_09:00"}, {"processo": "7049273-60.2025.8.22.0001", "data": "2026-04-07", "hora": "10:00", "vara": "1º Juizado Especial da Fazenda Pública", "tipo": "CONCILIAÇÃ O - Juizado Especial da Fazenda Pública", "partes": "SERLI DA SILVA MARIANO - CPF: 700.205.072-91 (REQUERENTE) X MUNICIPIO DE PORTO VELHO - CNPJ: 05.903.125/0001-45 (REQUERIDO)", "procurador": "Dr. Junior", "wppProcurador": "", "link": "", "situacao": "Realizada", "resultado": "", "obs": "SALA 1 - Juizado Especial da Fazenda Pública", "_rowId": "7049273-60.2025.8.22.0001_2026-04-07_10:00"}, {"processo": "7055033-87.2025.8.22.0001", "data": "2026-04-07", "hora": "10:00", "vara": "1º Juizado Especial da Fazenda Pública", "tipo": "CONCILIAÇÃ O - Juizado Especial da Fazenda Pública", "partes": "SILVIA NADEJA FARIAS BRASIL - CPF: 251.027.532-15 (REQUERENTE) X MUNICIPIO DE PORTO VELHO - CNPJ: 05.903.125/0001-45 (REQUERIDO)", "procurador": "Dr. Junior", "wppProcurador": "", "link": "", "situacao": "Realizada", "resultado": "", "obs": "SALA 1 - Juizado Especial da Fazenda Pública", "_rowId": "7055033-87.2025.8.22.0001_2026-04-07_10:00"}, {"processo": "0021135-33.2010.8.22.0001", "data": "2026-04-16", "hora": "09:00", "vara": "2ª Vara de Fazenda e Saúde Pública", "tipo": "Conciliação", "partes": "VALZOMIRO BIZARELLO - CPF: 105.302.741-91 (EXEQUENTE) X MUNICIPIO DE PORTO VELHO - CNPJ: 05.903.125/0001-45 (EXECUTADO)", "procurador": "Dr. Junior", "wppProcurador": "", "link": "", "situacao": "Realizada", "resultado": "", "obs": "2ª Vara de Fazenda Pública", "_rowId": "0021135-33.2010.8.22.0001_2026-04-16_09:00"}, {"processo": "7026100-41.2024.8.22.0001", "data": "2026-04-15", "hora": "09:00", "vara": "2ª Vara de Fazenda e Saúde Pública", "tipo": "Conciliação", "partes": "MPRO - MINISTÉRIO PÚBLICO DO ESTADO DE RONDÔNIA - CNPJ: 04.381.083/0001-67 (AUTOR) X MUNICIPIO DE PORTO VELHO - CNPJ: 05.903.125/0001-45 (REU)", "procurador": "Dr. Junior", "wppProcurador": "", "link": "", "situacao": "Agendada", "resultado": "", "obs": "2ª Vara de Fazenda Pública", "_rowId": "7026100-41.2024.8.22.0001_2026-04-15_09:00"}, {"processo": "7012891-34.2026.8.22.0001", "data": "2026-04-01", "hora": "08:30", "vara": "Vara de Proteção à Infância e Juventude", "tipo": "Instrução", "partes": "MPRO - MINISTÉRIO PÚBLICO DO ESTADO DE RONDÔNIA - CNPJ: 04.381.083/0001-67 (REQUERENTE) X DILSON ROBERTO VIANA SANTOS - CPF: 019.800.393-56 (REQUERIDO) e LILIANE GALDINO DA CRUZ - CPF: 816.231.942-53 ", "procurador": "Dr. Junior", "wppProcurador": "", "link": "", "situacao": "Realizada", "resultado": "", "obs": "SALA DE AUDIÊNCIAS CÍVEIS VPIJ - PVH/RO", "_rowId": "7012891-34.2026.8.22.0001_2026-04-01_08:30"}, {"processo": "7041421-19.2024.8.22.0001", "data": "2026-04-08", "hora": "10:00", "vara": "Vara de Proteção à Infância e Juventude", "tipo": "Conciliação", "partes": "1º CONSELHO TUTELAR DISTRITAL DE JACI PARANÁ (REQUERENTE) e MPRO - MINISTÉRIO PÚBLICO DO ESTADO DE RONDÔNIA - CNPJ: 04.381.083/0001-67 (REQUERENTE) X MUNICIPIO DE PORTO VELHO - CNPJ: 05.903.125/0001-4", "procurador": "Dr. Junior", "wppProcurador": "", "link": "", "situacao": "Realizada", "resultado": "", "obs": "SALA DE AUDIÊNCIAS CÍVEIS VPIJ - PVH/RO", "_rowId": "7041421-19.2024.8.22.0001_2026-04-08_10:00"}, {"processo": "7011885-89.2026.8.22.0001", "data": "2026-04-06", "hora": "10:00", "vara": "Vara de Proteção à Infância e Juventude", "tipo": "Preliminar", "partes": "MPRO - MINISTÉRIO PÚBLICO DO ESTADO DE RONDÔNIA - CNPJ: 04.381.083/0001-67 (REQUERENTE) X IRIS REGINA FEITOSA - CPF: 016.219.882-52 (INTERESSADO) e ELITON ALVES ALFAIA - CPF: 700.003.892-69 (INTERESSA", "procurador": "Dr. Junior", "wppProcurador": "", "link": "", "situacao": "Realizada", "resultado": "", "obs": "SALA DE AUDIÊNCIAS CÍVEIS VPIJ - PVH/RO", "_rowId": "7011885-89.2026.8.22.0001_2026-04-06_10:00"}, {"processo": "7029796-32.2017.8.22.0001", "data": "2026-04-14", "hora": "08:00", "vara": "8ª Vara Cível", "tipo": "CONCILIAÇÃ O - Cível Comum", "partes": "INSTITUTO EDUCAR - CNPJ: 12.907.512/0001-15 (AUTOR), ANDERSON DA SILVA - CPF: 848.426.362-20 (AUTOR), ADRIANA DE SOUZA ARAUJO VICTOR - CPF: 739.927.202-68 (AUTOR), ALBERTO MONTEIRO DA COSTA - CPF: 011", "procurador": "Dr. Junior", "wppProcurador": "", "link": "", "situacao": "Cancelada", "resultado": "", "obs": "SALA 4 - Cível Comum", "_rowId": "7029796-32.2017.8.22.0001_2026-04-14_08:00"}, {"processo": "7005382-52.2026.8.22.0001", "data": "2026-04-06", "hora": "09:30", "vara": "1º Juizado Especial da Fazenda Pública", "tipo": "CONCILIAÇÃ O - Juizado Especial da Fazenda Pública", "partes": "EDSON JOCIE FARIAS ARINANA - CPF: 833.922.702-53 (REQUERENTE) X ESTADO DE RONDONIA - CNPJ: 00.394.585/0001-71 (REQUERIDO) e MUNICIPIO DE PORTO VELHO - CNPJ: 05.903.125/0001-45 (REQUERIDO)", "procurador": "Dr. Junior", "wppProcurador": "", "link": "", "situacao": "Cancelada", "resultado": "", "obs": "Nucomed Saúde", "_rowId": "7005382-52.2026.8.22.0001_2026-04-06_09:30"}, {"processo": "7011895-36.2026.8.22.0001", "data": "2026-04-06", "hora": "13:00", "vara": "1º Juizado Especial da Fazenda Pública", "tipo": "CONCILIAÇÃ O - Juizado Especial da Fazenda Pública", "partes": "ISAAC DA SILVA MITTOUSO - CPF: 678.152.602-25 (REQUERENTE) X ESTADO DE RONDONIA - CNPJ: 00.394.585/0001-71 (REQUERIDO) e MUNICIPIO DE PORTO VELHO - CNPJ: 05.903.125/0001-45 (REQUERIDO)", "procurador": "Dr. Junior", "wppProcurador": "", "link": "", "situacao": "Agendada", "resultado": "", "obs": "Nucomed Saúde", "_rowId": "7011895-36.2026.8.22.0001_2026-04-06_13:00"}, {"processo": "7012019-19.2026.8.22.0001", "data": "2026-04-06", "hora": "13:30", "vara": "1º Juizado Especial da Fazenda Pública", "tipo": "CONCILIAÇÃ O - Juizado Especial da Fazenda Pública", "partes": "MARNETE ARAUJO DA COSTA - CPF: 409.513.242-68 (REQUERENTE) X ESTADO DE RONDONIA - CNPJ: 00.394.585/0001-71 (REQUERIDO) e MUNICIPIO DE PORTO VELHO - CNPJ: 05.903.125/0001-45 (REQUERIDO)", "procurador": "Dr. Junior", "wppProcurador": "", "link": "", "situacao": "Agendada", "resultado": "", "obs": "Nucomed Saúde", "_rowId": "7012019-19.2026.8.22.0001_2026-04-06_13:30"}, {"processo": "7002687-28.2026.8.22.0001", "data": "2026-04-06", "hora": "12:30", "vara": "1º Juizado Especial da Fazenda Pública", "tipo": "CONCILIAÇÃ O - Juizado Especial da Fazenda Pública", "partes": "CONCEICAO DE SOUZA VELES - CPF: 389.196.802-72 (REQUERENTE) X ESTADO DE RONDONIA - CNPJ: 00.394.585/0001-71 (REQUERIDO) e MUNICIPIO DE PORTO VELHO - CNPJ: 05.903.125/0001-45 (REQUERIDO)", "procurador": "Dr. Junior", "wppProcurador": "", "link": "", "situacao": "Realizada", "resultado": "", "obs": "Nucomed Saúde", "_rowId": "7002687-28.2026.8.22.0001_2026-04-06_12:30"}, {"processo": "7013660-42.2026.8.22.0001", "data": "2026-04-07", "hora": "08:30", "vara": "1º Juizado Especial da Fazenda Pública", "tipo": "CONCILIAÇÃ O - Juizado Especial da Fazenda Pública", "partes": "ELIANA DA SILVA SOARES - CPF: 007.612.352-99 (REQUERENTE) X MUNICIPIO DE PORTO VELHO - CNPJ: 05.903.125/0001-45 (REQUERIDO)", "procurador": "Dr. Junior", "wppProcurador": "", "link": "", "situacao": "Agendada", "resultado": "", "obs": "Nucomed Saúde", "_rowId": "7013660-42.2026.8.22.0001_2026-04-07_08:30"}, {"processo": "7077713-66.2025.8.22.0001", "data": "2026-04-07", "hora": "11:00", "vara": "1º Juizado Especial da Fazenda Pública", "tipo": "CONCILIAÇÃ O - Juizado Especial da Fazenda Pública", "partes": "ANDREIA BARBOSA DO NASCIMENTO - CPF: 090.616.572-53 (REQUERENTE) X ESTADO DE RONDONIA - CNPJ: 00.394.585/0001-71 (REQUERIDO) e MUNICIPIO DE PORTO VELHO - CNPJ: 05.903.125/0001-45 (REQUERIDO)", "procurador": "Dr. Junior", "wppProcurador": "", "link": "", "situacao": "Agendada", "resultado": "", "obs": "Nucomed Saúde", "_rowId": "7077713-66.2025.8.22.0001_2026-04-07_11:00"}, {"processo": "7028727-81.2025.8.22.0001", "data": "2026-04-17", "hora": "09:00", "vara": "2ª Vara de Fazenda e Saúde Pública", "tipo": "Instrução", "partes": "MUNICIPIO DE PORTO VELHO - CNPJ: 05.903.125/0001-45 (AUTOR) X JOSENILDO NUNES DE SOUZA - CPF: 340.772.602-30 (REU)", "procurador": "Dr. Junior", "wppProcurador": "", "link": "", "situacao": "Remarcada", "resultado": "", "obs": "2ª Vara de Fazenda Pública", "_rowId": "7028727-81.2025.8.22.0001_2026-04-17_09:00"}, {"processo": "7005693-43.2026.8.22.0001", "data": "2026-04-09", "hora": "09:00", "vara": "Vara de Proteção à Infância e Juventude", "tipo": "Conciliação", "partes": "JUÍZO DA VARA DE PROTEÇÃO DA INFÂNCIA E JUVENTUDE DE PORTO VELHO/RO (REQUERENTE) X CASA FAMILIA ROSETTA - CNPJ: 63.762.553/0001-00 (REQUERIDO)", "procurador": "Dr. Junior", "wppProcurador": "", "link": "", "situacao": "Realizada", "resultado": "", "obs": "SALA DE AUDIÊNCIAS CÍVEIS VPIJ - PVH/RO", "_rowId": "7005693-43.2026.8.22.0001_2026-04-09_09:00"}, {"processo": "7052176-39.2023.8.22.0001", "data": "2026-04-09", "hora": "10:00", "vara": "1ª Vara de Fazenda e Saúde Pública", "tipo": "CONCILIAÇÃ O - Cível Comum", "partes": "ANTONINHA APARECIDA ALVES DA SILVA - CPF: 155.845.118-89 (REQUERENTE) X ESTADO DE RONDONIA - CNPJ: 00.394.585/0001-71 (REQUERIDO), ANDERSON DA SILVA - CPF: 348.810.398- 65 (REQUERIDO) e MUNICIPIO DE P", "procurador": "Dr. Junior", "wppProcurador": "", "link": "", "situacao": "Cancelada", "resultado": "", "obs": "Conciliação Cejusc", "_rowId": "7052176-39.2023.8.22.0001_2026-04-09_10:00"}, {"processo": "7058916-76.2024.8.22.0001", "data": "2026-04-10", "hora": "08:30", "vara": "1ª Vara de Fazenda e Saúde Pública", "tipo": "CONCILIAÇÃ O - Cível Comum", "partes": "MARIA DO SOCORRO MARTINS DA SILVA - CPF: 162.919.482-49 (AUTOR) X JORGE DAVI DA SILVA SANTOS - CPF: 702.865.422-26 (REU), MUNICIPIO DE PORTO VELHO - CNPJ: 05.903.125/0001- 45 (REU) e ESTADO DE RONDONI", "procurador": "Dr. Junior", "wppProcurador": "", "link": "", "situacao": "Agendada", "resultado": "", "obs": "Conciliação Cejusc", "_rowId": "7058916-76.2024.8.22.0001_2026-04-10_08:30"}, {"processo": "7007022-27.2025.8.22.0001", "data": "2026-04-10", "hora": "09:30", "vara": "1ª Vara de Fazenda e Saúde Pública", "tipo": "CONCILIAÇÃ O - Cível Comum", "partes": "MPRO - MINISTÉRIO PÚBLICO DO ESTADO DE RONDÔNIA - CNPJ: 04.381.083/0001-67 (AUTOR) X ESTADO DE RONDONIA - CNPJ: 00.394.585/0001-71 (REU) e MUNICIPIO DE PORTO VELHO - CNPJ: 05.903.125/0001-45 (REU)", "procurador": "Dr. Junior", "wppProcurador": "", "link": "", "situacao": "Realizada", "resultado": "", "obs": "Conciliação Cejusc", "_rowId": "7007022-27.2025.8.22.0001_2026-04-10_09:30"}, {"processo": "7019664-32.2025.8.22.0001", "data": "2026-04-10", "hora": "10:00", "vara": "1ª Vara de Fazenda e Saúde Pública", "tipo": "CONCILIAÇÃ O - Cível Comum", "partes": "MABEL DE ALMEIDA COLARES - CPF: 649.381.312-34 (AUTOR) X MUNICIPIO DE PORTO VELHO - CNPJ: 05.903.125/0001-45 (REU) e ESTADO DE RONDONIA - CNPJ: 00.394.585/0001-71 (REU)", "procurador": "Dr. Junior", "wppProcurador": "", "link": "", "situacao": "Cancelada", "resultado": "", "obs": "Conciliação Cejusc", "_rowId": "7019664-32.2025.8.22.0001_2026-04-10_10:00"}, {"processo": "7035746-41.2025.8.22.0001", "data": "2026-04-10", "hora": "11:00", "vara": "1ª Vara de Fazenda e Saúde Pública", "tipo": "CONCILIAÇÃ O - Cível Comum", "partes": "RAIMUNDA MENDES JARDIM SANTOS - CPF: 106.167.213-15 (REQUERENTE) X KAIK VIEIRA JARDIM - CPF: 050.423.042- 58 (REQUERIDO), ESTADO DE RONDONIA - CNPJ: 00.394.585/0001-71 (REQUERIDO) e MUNICIPIO DE PORTO", "procurador": "Dr. Junior", "wppProcurador": "", "link": "", "situacao": "Cancelada", "resultado": "", "obs": "Conciliação Cejusc", "_rowId": "7035746-41.2025.8.22.0001_2026-04-10_11:00"}, {"processo": "7042644-70.2025.8.22.0001", "data": "2026-04-10", "hora": "12:30", "vara": "1ª Vara de Fazenda e Saúde Pública", "tipo": "CONCILIAÇÃ O - Cível Comum", "partes": "MARIA HELENA SILVA DE SOUZA - CPF: 085.120.432-53 (REQUERENTE) X ESTADO DE RONDONIA - CNPJ: 00.394.585/0001-71 (REQUERIDO), HENDERSON DE SOUZA MELGAR - CPF: 693.851.302-34 (REQUERIDO) e MUNICIPIO DE P", "procurador": "Dr. Junior", "wppProcurador": "", "link": "", "situacao": "Cancelada", "resultado": "", "obs": "Conciliação Cejusc", "_rowId": "7042644-70.2025.8.22.0001_2026-04-10_12:30"}, {"processo": "7054899-60.2025.8.22.0001", "data": "2026-04-10", "hora": "09:30", "vara": "1ª Vara de Fazenda e Saúde Pública", "tipo": "CONCILIAÇÃ O - Cível Comum", "partes": "RICARDO GLACIANO BELEM registrado(a) civilmente como RICARDO GLACIANO BELEM - CPF: 571.689.382-15 (REQUERENTE) X MUNICIPIO DE PORTO VELHO - CNPJ: 05.903.125/0001-45 (REQUERIDO), ROBERTA TAVARES BELEM ", "procurador": "Dr. Junior", "wppProcurador": "", "link": "", "situacao": "Cancelada", "resultado": "", "obs": "Conciliação Cejusc", "_rowId": "7054899-60.2025.8.22.0001_2026-04-10_09:30"}, {"processo": "7002704-64.2026.8.22.0001", "data": "2026-04-10", "hora": "08:30", "vara": "1ª Vara de Fazenda e Saúde Pública", "tipo": "CONCILIAÇÃ O - Cível Comum", "partes": "KERLINY PEDRAZA MENDES - CPF: 497.559.432-34 (AUTOR) X ESTADO DE RONDONIA - CNPJ: 00.394.585/0001-71 (REU), JACKSON PEDRAZA MENDES - CPF: 653.634.772-20 (REU) e MUNICIPIO DE PORTO VELHO - CNPJ: 05.903", "procurador": "Dr. Junior", "wppProcurador": "", "link": "", "situacao": "Cancelada", "resultado": "", "obs": "Conciliação Cejusc", "_rowId": "7002704-64.2026.8.22.0001_2026-04-10_08:30"}, {"processo": "7007307-83.2026.8.22.0001", "data": "2026-04-10", "hora": "10:30", "vara": "1ª Vara de Fazenda e Saúde Pública", "tipo": "CONCILIAÇÃ O - Cível Comum", "partes": "EVELYN CAROLINE COSTA DOS SANTOS - CPF: 957.574.302-49 (AUTOR) e VANIA MARIA GONCALVES DOS SANTOS - CPF: 422.756.012-87 (AUTOR) X ESTADO DE RONDONIA - CNPJ: 00.394.585/0003-33 (REU), UNIÃO FEDERAL (RE", "procurador": "Dr. Junior", "wppProcurador": "", "link": "", "situacao": "Realizada", "resultado": "", "obs": "Conciliação Cejusc", "_rowId": "7007307-83.2026.8.22.0001_2026-04-10_10:30"}, {"processo": "7010238-59.2026.8.22.0001", "data": "2026-04-10", "hora": "13:00", "vara": "1ª Vara de Fazenda e Saúde Pública", "tipo": "CONCILIAÇÃ O - Cível Comum", "partes": "MARIA DE FREITAS LEAL - CPF: 095.626.722-04 (AUTOR) X ESTADO DE RONDONIA - CNPJ: 00.394.585/0001-71 (REU) e MUNICIPIO DE PORTO VELHO - CNPJ: 05.903.125/0001-45 (REU)", "procurador": "Dr. Junior", "wppProcurador": "", "link": "", "situacao": "Cancelada", "resultado": "", "obs": "Conciliação Cejusc", "_rowId": "7010238-59.2026.8.22.0001_2026-04-10_13:00"}, {"processo": "7017527-43.2026.8.22.0001", "data": "2026-04-16", "hora": "09:00", "vara": "Vara de Proteção à Infância e Juventude", "tipo": "Apresentação", "partes": "MPRO - MINISTÉRIO PÚBLICO DO ESTADO DE RONDÔNIA - CNPJ: 04.381.083/0001-67 (REQUERENTE) X FERNANDA DA SILVA BARROS - CPF: 016.290.432-06 (INTERESSADO)", "procurador": "Dr. Junior", "wppProcurador": "", "link": "", "situacao": "Realizada", "resultado": "", "obs": "SALA DE AUDIÊNCIAS CÍVEIS VPIJ - PVH/RO", "_rowId": "7017527-43.2026.8.22.0001_2026-04-16_09:00"}, {"processo": "7043943-19.2024.8.22.0001", "data": "2026-04-15", "hora": "09:00", "vara": "Vara de Proteção à Infância e Juventude", "tipo": "Conciliação", "partes": "MPRO - MINISTÉRIO PÚBLICO DO ESTADO DE RONDÔNIA - CNPJ: 04.381.083/0001-67 (REQUERENTE) X CRISTIANE CRISTINA SOARES DO NASCIMENTO - CPF: 016.626.712-02 (REQUERIDO)", "procurador": "Dr. Junior", "wppProcurador": "", "link": "", "situacao": "Realizada", "resultado": "", "obs": "SALA DE AUDIÊNCIAS CÍVEIS VPIJ - PVH/RO", "_rowId": "7043943-19.2024.8.22.0001_2026-04-15_09:00"}, {"processo": "7051335-44.2023.8.22.0001", "data": "2026-04-09", "hora": "14:00", "vara": "2ª Vara de Fazenda e Saúde Pública", "tipo": "Instrução", "partes": "MUNICIPIO DE PORTO VELHO - CNPJ: 05.903.125/0001-45 (AUTOR) X AZUL LINHAS AEREAS BRASILEIRAS S.A. - CNPJ: 09.296.295/0001-60 (REU) e GOL LINHAS AEREAS S.A. - CNPJ: 07.575.651/0001-59 (REU)", "procurador": "Dr. Junior", "wppProcurador": "", "link": "", "situacao": "Realizada", "resultado": "", "obs": "2ª Vara de Fazenda Pública", "_rowId": "7051335-44.2023.8.22.0001_2026-04-09_14:00"}, {"processo": "7017559-48.2026.8.22.0001", "data": "2026-04-14", "hora": "09:00", "vara": "Vara de Proteção à Infância e Juventude", "tipo": "Preliminar", "partes": "MPRO - MINISTÉRIO PÚBLICO DO ESTADO DE RONDÔNIA - CNPJ: 04.381.083/0001-67 (REQUERENTE) X OCIMAR DA SILVA LIMA - CPF: 782.972.902-63 (REQUERIDO) e JULINEIDE NUNES BRAGA - CPF: 676.611.732-04 (REQUERID", "procurador": "Dr. Junior", "wppProcurador": "", "link": "", "situacao": "Realizada", "resultado": "", "obs": "SALA DE AUDIÊNCIAS CÍVEIS VPIJ - PVH/RO", "_rowId": "7017559-48.2026.8.22.0001_2026-04-14_09:00"}, {"processo": "7019760-13.2026.8.22.0001", "data": "2026-04-17", "hora": "08:00", "vara": "Vara de Proteção à Infância e Juventude", "tipo": "Preliminar", "partes": "MPRO - MINISTÉRIO PÚBLICO DO ESTADO DE RONDÔNIA - CNPJ: 04.381.083/0001-67 (REQUERENTE) X MARTA DO NASCIMENTO COSTA - CPF: 009.871.732-43 (INTERESSADO)", "procurador": "Dr. Junior", "wppProcurador": "", "link": "", "situacao": "Agendada", "resultado": "", "obs": "SALA DE AUDIÊNCIAS CÍVEIS VPIJ - PVH/RO", "_rowId": "7019760-13.2026.8.22.0001_2026-04-17_08:00"}];
+
+function carregarDadosPlanilha() {
+  // Se não há dados locais salvos ainda, carrega os dados da planilha inicial
+  const existente = localStorage.getItem('local_audiencias');
+  if(!existente || JSON.parse(existente).length === 0) {
+    dados = JSON.parse(JSON.stringify(DADOS_PLANILHA_INICIAL));
+    salvarLocal();
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+// IMPORTAÇÃO DE XLSX NO CLIENTE (SheetJS)
+// ════════════════════════════════════════════════════════════════
+function importarXlsx(file) {
+  if(!file) return;
+  const status = document.getElementById('xlsxStatus');
+  const preview = document.getElementById('xlsxPreview');
+  status.style.display = 'block';
+  status.style.background = 'var(--blue-50)';
+  status.style.borderColor = 'var(--blue-200)';
+  status.style.color = 'var(--blue-800)';
+  status.textContent = '⏳ Lendo planilha...';
+  preview.style.display = 'none';
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const wb = XLSX.read(e.target.result, {type:'array', cellDates:true});
+      const novos = [];
+      const procRe = /\d{7}-\s*\d{2}\.\d{4}\.\d\.\d{2}\.\d{4}/;
+      const linkRe = /https?:\/\/meet\.google\.com\/[a-z0-9\-]+/i;
+
+      wb.SheetNames.forEach(sheetName => {
+        const ws = wb.Sheets[sheetName];
+        const rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
+        if(rows.length < 2) return;
+
+        rows.forEach((row, i) => {
+          if(i === 0) return;
+          const dataHora = row[0];
+          if(!dataHora) return;
+
+          let dataObj;
+          if(dataHora instanceof Date) {
+            dataObj = dataHora;
+          } else if(typeof dataHora === 'number') {
+            // Número serial do Excel
+            dataObj = new Date(Math.round((dataHora - 25569) * 86400 * 1000));
+          } else {
+            try { dataObj = new Date(dataHora); } catch(e) { return; }
+          }
+          if(isNaN(dataObj.getTime())) return;
+
+          const varaRaw = String(row[1]||'').replace(/\n/g,' ').trim();
+          const procPartes = String(row[2]||'').replace(/\n/g,' ').trim();
+          const procurador = String(row[3]||'').trim();
+          const resumo = String(row[4]||'').replace(/\n/g,' ').trim();
+          const obsLink = String(row[5]||'').replace(/\n/g,' ').trim();
+
+          // Extrair número do processo
+          const mProc = procPartes.match(procRe);
+          const processo = mProc ? mProc[0] : '';
+          const partes = procPartes.replace(processo,'').trim();
+
+          // Extrair tipo entre parênteses
+          const mTipo = varaRaw.match(/\(([^)]+)\)/);
+          const tipo = mTipo ? mTipo[1].trim() : 'Instrução e Julgamento';
+          const vara = varaRaw.replace(/\s*\([^)]+\)/,'').trim();
+
+          // Link
+          const mLink = linkRe.exec(obsLink) || linkRe.exec(resumo);
+          const link = mLink ? mLink[0] : '';
+          const obs = (!linkRe.test(obsLink) ? obsLink : '').slice(0,400) || resumo.slice(0,400);
+
+          const dataStr = dataObj.toISOString().slice(0,10);
+          const hora = dataObj.toTimeString().slice(0,5);
+
+          novos.push({
+            processo, data: dataStr, hora, vara, tipo,
+            partes: partes.slice(0,200),
+            procurador, wppProcurador:'', link,
+            situacao:'Agendada', resultado:'',
+            obs: obs.slice(0,400),
+            _rowId: (processo||Date.now()) + '_' + dataStr + '_' + hora
+          });
+        });
+      });
+
+      if(!novos.length) {
+        status.style.background='var(--red-bg)';status.style.borderColor='rgba(235,87,87,.2)';status.style.color='var(--red)';
+        status.textContent='❌ Nenhuma audiência encontrada. Verifique se o arquivo é a PAUTA_DE_AUDIÊNCIAS_2026.xlsx correta.';
+        return;
+      }
+
+      if(!confirm(`Importar ${novos.length} audiências da planilha? Os dados atuais serão substituídos.`)) return;
+
+      dados = novos;
+      salvarLocal();
+      atualizar();
+
+      status.style.background='var(--green-bg)';status.style.borderColor='rgba(39,174,96,.2)';status.style.color='var(--green)';
+      status.textContent=`✅ ${novos.length} audiências importadas com sucesso!`;
+      atualizarResumoXlsx();
+
+      preview.style.display='block';
+      preview.innerHTML=`<div style="font-size:12px;color:var(--text-2);margin-top:8px;background:var(--card-bg-2);padding:12px;border-radius:8px;border:1px solid var(--border)">
+        <strong>Prévia dos dados importados:</strong><br>
+        ${novos.slice(0,5).map(r=>`• ${r.processo||'—'} — ${r.data} ${r.hora} — ${r.vara.slice(0,40)}`).join('<br>')}
+        ${novos.length>5?`<br><em>...e mais ${novos.length-5} audiências.</em>`:''}
+      </div>`;
+    } catch(err) {
+      status.style.background='var(--red-bg)';status.style.borderColor='rgba(235,87,87,.2)';status.style.color='var(--red)';
+      status.textContent='❌ Erro ao ler o arquivo: '+err.message;
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function atualizarResumoXlsx() {
+  const el = document.getElementById('xlsxResumo');
+  if(!el) return;
+  const total = dados.length;
+  const meses = {};
+  dados.forEach(r=>{ if(r.data) { const m=r.data.slice(0,7); meses[m]=(meses[m]||0)+1; } });
+  const mesesStr = Object.entries(meses).sort().map(([m,q])=>{
+    const [ano,mes]=m.split('-');
+    const nomes=['','Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    return `${nomes[+mes]}/${ano}: ${q}`;
+  }).join(' &nbsp;·&nbsp; ');
+  el.innerHTML=`<strong>${total}</strong> audiências carregadas &nbsp;|&nbsp; ${mesesStr||'—'}`;
+}
+
+
+// ════════════════════════════════════════════════════════════════
+// URGÊNCIA
+// ════════════════════════════════════════════════════════════════
+let _urgCache = {};
+function calcUrgencia(r){
+  if(r.situacao !== 'Agendada') return 'cinza';
+  const d = parseData(r.data);
+  if(!d) return 'cinza';
+  const diff = Math.floor((d - HOJE) / 86400000);
+  if(diff < 0)  return 'cinza';   // passada
+  if(diff === 0) return 'vermelho'; // hoje
+  if(diff <= 2)  return 'vermelho'; // amanhã/depois
+  if(diff <= 7)  return 'amarelo';  // esta semana
+  return 'verde';
+}
+function urgClass(r){ return {vermelho:'urgV',amarelo:'urgA',verde:'urgG',cinza:'urgC'}[calcUrgencia(r)]||''; }
+function urgBadge(r){
+  const u = calcUrgencia(r);
+  const labels = {vermelho:'Urgente',amarelo:'Em breve',verde:'OK',cinza:'Concluída'};
+  const cls    = {vermelho:'v',amarelo:'a',verde:'g',cinza:'c'};
+  return `<span class="urg-badge ${cls[u]}">${labels[u]}</span>`;
+}
+
+// ════════════════════════════════════════════════════════════════
+// VISUALIZAÇÃO (tabela / cards) + EXPAND ROW
+// ════════════════════════════════════════════════════════════════
+let _viewMode = 'tabela';
+let _expandIdx = null;
+
+function setView(mode){
+  _viewMode = mode;
+  document.getElementById('vtTabela').classList.toggle('active', mode==='tabela');
+  document.getElementById('vtCards').classList.toggle('active', mode==='cards');
+  const tw = document.querySelector('.table-wrap');
+  const cv = document.getElementById('cardsView');
+  if(tw) tw.style.display = mode==='tabela' ? '' : 'none';
+  if(cv) cv.style.display = mode==='cards'  ? 'grid' : 'none';
+  renderTabela();
+}
+
+function toggleExpand(idx){
+  const existing = document.getElementById('expandRow_' + idx);
+  if(existing){ existing.remove(); _expandIdx=null; return; }
+  if(_expandIdx !== null){
+    const old = document.getElementById('expandRow_' + _expandIdx);
+    if(old) old.remove();
+  }
+  _expandIdx = idx;
+  const r = dados[idx];
+  if(!r) return;
+  const tbody = document.getElementById('corpoTabela');
+  const rows = tbody.querySelectorAll('tr[data-idx]');
+  let targetRow = null;
+  rows.forEach(tr => { if(parseInt(tr.dataset.idx)===idx) targetRow=tr; });
+  if(!targetRow) return;
+  const temWpp = !!(r.wppProcurador||wppDe(r.procurador));
+  const tr = document.createElement('tr');
+  tr.id = 'expandRow_' + idx;
+  tr.className = 'expand-row';
+  tr.innerHTML = `<td colspan="10">
+    <div class="expand-inner">
+      <div class="expand-grid">
+        <div class="expand-field"><label>Partes</label><span>${r.partes||'—'}</span></div>
+        <div class="expand-field"><label>Procurador</label><span>${r.procurador||'—'}</span></div>
+        <div class="expand-field"><label>Tipo</label><span>${r.tipo||'—'}</span></div>
+        <div class="expand-field"><label>Sala</label><span>${r.obs||'—'}</span></div>
+        ${r.resultado?`<div class="expand-field"><label>Resultado</label><span>${r.resultado}</span></div>`:''}
+      </div>
+      <div class="status-btns">
+        ${isEditor()?`
+        <button class="btn sm" onclick="editarAudiencia(${idx})">Editar</button>
+        <button class="sbtn R" onclick="mudarSituacao(${idx},'Realizada')">✓ Realizada</button>
+        <button class="sbtn C" onclick="mudarSituacao(${idx},'Cancelada')">✕ Cancelada</button>
+        <button class="sbtn M" onclick="mudarSituacao(${idx},'Remarcada')">↺ Remarcada</button>`:''}
+        ${temWpp?`<button class="btn-wpp sm" onclick="enviarWpp(${idx},'aviso')">${svgWpp}</button>`:''}
+        ${r.link?`<a href="${r.link}" target="_blank" class="btn sm">🔗 Entrar na audiência</a>`:''}
+      </div>
+    </div>
+  </td>`;
+  targetRow.after(tr);
+}
+
+async function mudarSituacao(idx, novoStatus){
+  dados[idx].situacao = novoStatus;
+  salvarLocal();
+  const old = document.getElementById('expandRow_'+idx);
+  if(old) old.remove();
+  _expandIdx = null;
+  atualizar();
+  setSyncStatus('ok', `Situação atualizada para "${novoStatus}".`);
+}
+
+// ════════════════════════════════════════════════════════════════
+// BUSCA RÁPIDA
+// ════════════════════════════════════════════════════════════════
+let _searchIdx = -1;
+
+function abrirBusca(){
+  document.getElementById('searchOverlay').classList.add('open');
+  setTimeout(()=>document.getElementById('searchInput').focus(), 80);
+  renderBusca();
+}
+function fecharBusca(){
+  document.getElementById('searchOverlay').classList.remove('open');
+  document.getElementById('searchInput').value='';
+  _searchIdx=-1;
+}
+function renderBusca(){
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  const el = document.getElementById('searchResults');
+  if(!q){ el.innerHTML='<div class="search-empty">Digite para buscar audiências</div>'; return; }
+  const res = dados.map((r,i)=>({...r,_idx:i})).filter(r=>{
+    return (r.processo+r.partes+r.vara+r.procurador+r.tipo+dataBr(r.data)).toLowerCase().includes(q);
+  }).slice(0,12);
+  if(!res.length){ el.innerHTML='<div class="search-empty">Nenhuma audiência encontrada</div>'; return; }
+  el.innerHTML = res.map((r,i)=>{
+    const urg = urgClass(r);
+    return `<div class="search-result-item${i===_searchIdx?' active':''}" data-sidx="${i}" onclick="irParaAudiencia(${r._idx})">
+      <span class="urg-badge ${urg==='urgV'?'v':urg==='urgA'?'a':urg==='urgG'?'g':'c'}" style="min-width:54px;justify-content:center">${r.situacao||'—'}</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:600;font-family:monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.processo||'—'}</div>
+        <div style="font-size:11px;color:var(--text-2)">${dataBr(r.data)||'—'} ${r.hora||''} · ${r.vara||'—'}</div>
+      </div>
+      <span style="font-size:11px;color:var(--text-3)">↵</span>
+    </div>`;
+  }).join('');
+  _searchIdx = -1;
+}
+function navBusca(e){
+  const items = document.querySelectorAll('.search-result-item');
+  if(e.key==='ArrowDown'){ e.preventDefault(); _searchIdx=Math.min(_searchIdx+1,items.length-1); }
+  else if(e.key==='ArrowUp'){ e.preventDefault(); _searchIdx=Math.max(_searchIdx-1,0); }
+  else if(e.key==='Enter'){ e.preventDefault(); if(items[_searchIdx]) items[_searchIdx].click(); return; }
+  else if(e.key==='Escape'){ fecharBusca(); return; }
+  items.forEach((it,i)=>it.classList.toggle('active',i===_searchIdx));
+}
+function irParaAudiencia(idx){
+  fecharBusca();
+  switchTab('pauta');
+  document.getElementById('filtroTexto').value = dados[idx]?.processo||'';
+  renderTabela();
+  setTimeout(()=>{
+    const row = document.querySelector(`tr[data-idx="${idx}"]`);
+    if(row){ row.scrollIntoView({behavior:'smooth',block:'center'}); toggleExpand(idx); }
+  }, 200);
+}
+
+// ════════════════════════════════════════════════════════════════
+// DASHBOARD
+// ════════════════════════════════════════════════════════════════
+let _calAno, _calMes;
+
+function renderDashboard(){
+  const hj = hojeISO();
+  const fs = fimSemana();
+  const nc = Object.keys(detectarConflitos()).length;
+
+  document.getElementById('dsHoje').textContent      = dados.filter(r=>r.data===hj&&r.situacao==='Agendada').length;
+  document.getElementById('dsSemana').textContent    = dados.filter(r=>{const d=parseData(r.data);return d&&d>=HOJE&&d<=fs&&r.situacao==='Agendada'}).length;
+  document.getElementById('dsConflitos').textContent = nc;
+  document.getElementById('dsRealizadas').textContent= dados.filter(r=>r.situacao==='Realizada').length;
+
+  // Próximas
+  const proximas = dados
+    .filter(r=>r.situacao==='Agendada'&&r.data>=hj)
+    .sort((a,b)=>(a.data+a.hora).localeCompare(b.data+b.hora))
+    .slice(0,8);
+  const cIdx = idxsConflito();
+  const diasNome=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const el = document.getElementById('dashProximas');
+  if(!proximas.length){ el.innerHTML='<div class="empty" style="padding:2rem">Nenhuma audiência agendada.</div>'; }
+  else {
+    el.innerHTML = proximas.map(r=>{
+      const idx = dados.indexOf(r);
+      const u = calcUrgencia(r);
+      const uc = {vermelho:'urgV',amarelo:'urgA',verde:'urgG',cinza:'urgC'}[u];
+      const d = parseData(r.data);
+      const dow = d ? diasNome[d.getDay()] : '';
+      const dom = r.data ? r.data.slice(8) : '';
+      const temConf = cIdx.has(idx);
+      return `<div class="prox-card ${uc}" onclick="irParaAudiencia(${idx})">
+        <div class="prox-date-box ${uc}">
+          <div class="dow">${dow}</div>
+          <div class="dom">${dom}</div>
+        </div>
+        <div class="prox-sep"></div>
+        <div style="font-size:12px;font-weight:600;color:var(--text-2);min-width:38px">${r.hora||'—'}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.processo||'—'}</div>
+          <div style="font-size:11px;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.vara||'—'} · ${r.tipo||'—'}</div>
+        </div>
+        ${temConf?'<span class="urg-badge v">Conflito</span>':urgBadge(r)}
+      </div>`;
+    }).join('');
+  }
+
+  // Calendário
+  const hoje = new Date();
+  if(!_calAno){ _calAno=hoje.getFullYear(); _calMes=hoje.getMonth(); }
+  renderCal();
+}
+
+function calMes(delta){
+  _calMes += delta;
+  if(_calMes>11){ _calMes=0; _calAno++; }
+  if(_calMes<0) { _calMes=11; _calAno--; }
+  renderCal();
+}
+
+function renderCal(){
+  const meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  document.getElementById('calTitulo').textContent = `${meses[_calMes]} ${_calAno}`;
+  const primeiroDia = new Date(_calAno, _calMes, 1).getDay();
+  const diasNoMes  = new Date(_calAno, _calMes+1, 0).getDate();
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const hj = hojeISO();
+
+  // Mapear dias com audiência / conflito
+  const diaMap = {};
+  const cIdx = idxsConflito();
+  dados.forEach((r,idx)=>{
+    if(!r.data||r.data.slice(0,7)!==`${_calAno}-${String(_calMes+1).padStart(2,'0')}`) return;
+    const dia = parseInt(r.data.slice(8));
+    if(!diaMap[dia]) diaMap[dia]={aud:0,conf:false};
+    diaMap[dia].aud++;
+    if(cIdx.has(idx)) diaMap[dia].conf=true;
+  });
+
+  const dow=['D','S','T','Q','Q','S','S'];
+  let html = dow.map(d=>`<div class="cal-dow">${d}</div>`).join('');
+  for(let i=0;i<primeiroDia;i++) html+=`<div class="cal-day outro-mes"></div>`;
+  for(let d=1;d<=diasNoMes;d++){
+    const isoD = `${_calAno}-${String(_calMes+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    let cls='cal-day';
+    if(isoD===hj) cls+=' hoje';
+    if(diaMap[d]?.conf) cls+=' has-conf';
+    else if(diaMap[d]?.aud) cls+=' has-aud';
+    html+=`<div class="${cls}" onclick="filtrarDia('${isoD}')" title="${diaMap[d]?diaMap[d].aud+' audiência(s)':''}">${d}</div>`;
+  }
+  document.getElementById('calGrid').innerHTML = html;
+}
+
+function filtrarDia(iso){
+  switchTab('pauta');
+  document.getElementById('filtroData').value = iso;
+  renderTabela();
+}
+
+document.addEventListener('keydown', e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key==='k'){ e.preventDefault(); abrirBusca(); }
+  if(e.key==='Escape'){ fecharBusca(); }
+});
+
+window.addEventListener('load', () => {
+  inicializarTelaLogin();
+});
+</script>
+<!-- BUSCA RÁPIDA -->
+<div class="search-overlay" id="searchOverlay" onclick="if(event.target===this)fecharBusca()">
+  <div class="search-box">
+    <div class="search-input-wrap">
+      <span style="color:var(--text-2);font-size:14px">🔍</span>
+      <input type="text" id="searchInput" placeholder="Buscar processo, parte, vara, procurador..."
+        oninput="renderBusca()" onkeydown="navBusca(event)" autocomplete="off">
+      <span style="font-size:11px;color:var(--text-3);cursor:pointer" onclick="fecharBusca()">esc</span>
+    </div>
+    <div class="search-results" id="searchResults">
+      <div class="search-empty">Digite para buscar audiências</div>
+    </div>
+    <div class="search-footer">
+      <span class="search-hint">↑↓ navegar</span>
+      <span class="search-hint">↵ abrir</span>
+      <span class="search-hint">Ctrl+K abrir</span>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
+</script>
+<!-- BUSCA RÁPIDA -->
+<div class="search-overlay" id="searchOverlay" onclick="if(event.target===this)fecharBusca()">
+  <div class="search-box">
+    <div class="search-input-wrap">
+      <span style="color:var(--text-2);font-size:14px">🔍</span>
+      <input type="text" id="searchInput" placeholder="Buscar processo, parte, vara, procurador..."
+        oninput="renderBusca()" onkeydown="navBusca(event)" autocomplete="off">
+      <span style="font-size:11px;color:var(--text-3);cursor:pointer" onclick="fecharBusca()">esc</span>
+    </div>
+    <div class="search-results" id="searchResults">
+      <div class="search-empty">Digite para buscar audiências</div>
+    </div>
+    <div class="search-footer">
+      <span class="search-hint">↑↓ navegar</span>
+      <span class="search-hint">↵ abrir</span>
+      <span class="search-hint">Ctrl+K abrir</span>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
