@@ -9,8 +9,14 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPA_URL = 'https://vmbzykywtgzyxmoxogel.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtYnp5a3l3dGd6eXhtb3hvZ2VsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNzYwMjMsImV4cCI6MjA5MTk1MjAyM30.hcaI0r0moi5vj7q1CfexiEk3oYyJixhMIASkGIhrkvI';
+const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+</script>
 <style>
-/* ─── RESET & BASE ─── */
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
@@ -51,15 +57,9 @@ font-size: 14px;
 min-height: 100vh;
 -webkit-font-smoothing: antialiased;
 }
-
-/* ─── SCROLLBAR ─── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--navy-3); border-radius: 3px; }
-
-/* ══════════════════════════════
-LOGIN
-══════════════════════════════ */
 #loginScreen {
 min-height: 100vh;
 display: flex;
@@ -152,17 +152,11 @@ animation: shake .3s ease;
 @keyframes shake {
 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)}
 }
-
-/* ══════════════════════════════
-APP SHELL — SIDEBAR LAYOUT
-══════════════════════════════ */
 #appShell {
 display: none;
 min-height: 100vh;
 flex-direction: row;
 }
-
-/* ─── SIDEBAR ─── */
 .sidebar {
 width: var(--sidebar-w);
 background: var(--navy-2);
@@ -238,15 +232,11 @@ font-size: 14px; transition: color .15s, background .15s;
 flex-shrink: 0;
 }
 .sidebar-logout:hover { color: var(--red); background: var(--red-bg); }
-
-/* ─── MAIN CONTENT ─── */
 .app-main {
 margin-left: var(--sidebar-w);
 flex: 1; display: flex; flex-direction: column;
 min-height: 100vh;
 }
-
-/* ─── TOP HEADER ─── */
 .app-header {
 background: var(--navy-2);
 border-bottom: 1px solid var(--border);
@@ -267,8 +257,6 @@ border-radius: 20px; padding: 5px 12px; font-size: 11px; color: var(--text-2);
 .status-dot.ok   { background: var(--green); }
 .status-dot.err  { background: var(--red); }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.25} }
-
-/* ─── PAGE AREA ─── */
 .page { padding: 1.5rem; display: none; flex-direction: column; gap: 1.25rem; }
 .page.active { display: flex; animation: pageIn .25s ease; }
 @keyframes pageIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
@@ -276,8 +264,6 @@ border-radius: 20px; padding: 5px 12px; font-size: 11px; color: var(--text-2);
 .page-header { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: .25rem; }
 .page-title  { font-size: 22px; font-weight: 800; color: var(--text); }
 .page-sub    { font-size: 13px; color: var(--text-2); margin-top: 3px; }
-
-/* ─── STAT CARDS ─── */
 .stats-grid {
 display: grid;
 grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -322,8 +308,6 @@ font-size: 18px; margin-bottom: .75rem;
 .stat-card.red    .stat-value { color: var(--red); }
 .stat-card.amber  .stat-value { color: var(--amber); }
 .stat-card.purple .stat-value { color: var(--purple); }
-
-/* ─── ALERTS ─── */
 .alert {
 font-size: 12px; padding: 10px 16px; border-radius: var(--radius);
 border: 1px solid; display: flex; align-items: center; gap: 8px;
@@ -331,8 +315,6 @@ border: 1px solid; display: flex; align-items: center; gap: 8px;
 .alert.aviso   { background: var(--amber-bg); color: var(--amber); border-color: rgba(242,153,74,.2); }
 .alert.conflito{ background: var(--red-bg); color: var(--red); border-color: rgba(235,87,87,.2); font-weight: 600; }
 .reader-notice { background: var(--amber-bg); color: var(--amber); border: 1px solid rgba(242,153,74,.2); font-size: 12px; padding: 10px 16px; border-radius: var(--radius); display: none; }
-
-/* ─── TOOLBAR ─── */
 .toolbar {
 display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
 background: var(--card-bg); border: 1px solid var(--border);
@@ -351,8 +333,6 @@ outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-g
 .toolbar input[type=text]::placeholder { color: var(--text-3); }
 .toolbar input[type=file] { display: none; }
 .toolbar select option { background: var(--navy-2); }
-
-/* ─── BUTTONS ─── */
 .btn {
 display: inline-flex; align-items: center; gap: 6px;
 padding: 6px 14px; border-radius: 8px; font-size: 12px;
@@ -371,8 +351,6 @@ height: 34px;
 .btn.relatorio{ background: var(--purple-bg); color: var(--purple); border-color: rgba(155,81,224,.3); }
 .btn.relatorio:hover { background: rgba(155,81,224,.2); }
 .btn.sm       { height: 28px; padding: 4px 10px; font-size: 11px; }
-
-/* ─── TABLE ─── */
 .table-wrap {
 background: var(--card-bg); border: 1px solid var(--border);
 border-radius: var(--radius-lg); overflow: hidden;
@@ -395,8 +373,6 @@ tbody tr { transition: background .15s; }
 tbody tr:hover { background: rgba(255,255,255,.03); }
 tbody tr.conflito-row { background: rgba(235,87,87,.05); }
 tbody tr.conflito-row:hover { background: rgba(235,87,87,.08); }
-
-/* ─── BADGES ─── */
 .badge {
 display: inline-block; font-size: 10px; font-weight: 700;
 padding: 2px 8px; border-radius: 6px; text-transform: uppercase; letter-spacing: .03em;
@@ -405,8 +381,6 @@ padding: 2px 8px; border-radius: 6px; text-transform: uppercase; letter-spacing:
 .badge.realizada { background: var(--green-bg); color: var(--green); }
 .badge.cancelada { background: var(--red-bg); color: var(--red); }
 .badge.remarcada { background: var(--amber-bg); color: var(--amber); }
-
-/* ─── TAGS ─── */
 .tag {
 display: inline-block; font-size: 9px; font-weight: 800;
 padding: 1px 6px; border-radius: 4px; margin-left: 4px;
@@ -415,8 +389,6 @@ text-transform: uppercase; letter-spacing: .04em;
 .tag.hoje   { background: var(--amber-bg); color: var(--amber); }
 .tag.amanha { background: var(--accent-glow); color: var(--accent); }
 .tag.conf   { background: var(--red-bg); color: var(--red); }
-
-/* ─── WPP BUTTON ─── */
 .btn-wpp {
 display: inline-flex; align-items: center; justify-content: center;
 width: 28px; height: 28px; border-radius: 8px;
@@ -427,19 +399,13 @@ cursor: pointer; padding: 0; transition: all .15s;
 .btn-wpp svg   { width: 15px; height: 15px; }
 .btn-wpp.disabled { opacity: .3; cursor: not-allowed; }
 .btn-wpp.sm { width: 26px; height: 26px; }
-
-/* ─── ICON LINK ─── */
 .icon-link { color: var(--accent); text-decoration: none; font-size: 15px; }
 .icon-link:hover { color: #fff; }
-
-/* ─── EMPTY STATE ─── */
 .empty {
 text-align: center; padding: 3rem;
 color: var(--text-3); font-size: 13px;
 }
 .empty::before { content: '📭'; display: block; font-size: 36px; margin-bottom: .75rem; }
-
-/* ─── CARDS ─── */
 .card {
 background: var(--card-bg);
 border: 1px solid var(--border);
@@ -453,22 +419,16 @@ border-color: rgba(235,87,87,.2);
 .conflito-card h3 { font-size: 13px; font-weight: 700; color: var(--red); margin-bottom: 8px; }
 .conflito-item { font-size: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); }
 .conflito-item:last-child { border: none; }
-
-/* ─── CONFIG SECTION ─── */
 .config-section {
 background: var(--card-bg);
 border: 1px solid var(--border); border-radius: var(--radius-lg);
 padding: 1.25rem; margin-bottom: 1rem;
 }
 .config-section h3 { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 12px; }
-
-/* ─── DIST ROW ─── */
 .dist-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
 .dist-row:last-child { border: none; }
 .dist-bar-wrap { flex: 2; height: 6px; background: var(--navy-3); border-radius: 3px; overflow: hidden; }
 .dist-fill { height: 100%; background: var(--accent); border-radius: 3px; transition: width .5s; }
-
-/* ─── MODAL ─── */
 .modal-bg {
 display: none; position: fixed; inset: 0;
 background: rgba(0,0,0,.6); z-index: 200;
@@ -490,8 +450,6 @@ animation: modalSlide .25s ease;
 display: flex; gap: 8px; justify-content: flex-end;
 margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--border);
 }
-
-/* ─── FORM ─── */
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .form-full { grid-column: 1/-1; }
 .form-group { display: flex; flex-direction: column; gap: 5px; }
@@ -514,8 +472,6 @@ outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-g
 .hint { font-size: 11px; color: var(--text-3); }
 .hint.ok  { color: var(--green); }
 .hint.new { color: var(--amber); }
-
-/* ─── AUTOCOMPLETE ─── */
 .ac-wrap { position: relative; }
 .ac-list {
 position: absolute; top: 100%; left: 0; right: 0;
@@ -528,8 +484,6 @@ box-shadow: var(--shadow);
 .ac-item:last-child { border: none; }
 .ac-item:hover { background: var(--navy-3); color: var(--text); }
 .ac-sub { font-size: 11px; color: var(--text-3); }
-
-/* ─── TABLES (users / proc) ─── */
 .users-table, .proc-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .users-table th, .proc-table th {
 background: var(--navy-2); font-size: 10px; font-weight: 700;
@@ -541,11 +495,7 @@ padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: midd
 }
 .users-table tr:last-child td, .proc-table tr:last-child td { border: none; }
 .users-table tr:hover td, .proc-table tr:hover td { background: rgba(255,255,255,.02); }
-
-/* ─── READER LOCK ─── */
 .reader-lock { opacity: .35; pointer-events: none; user-select: none; }
-
-/* ─── SPINNER ─── */
 .spinner {
 display: inline-block; width: 13px; height: 13px;
 border: 2px solid rgba(255,255,255,.2); border-top-color: #fff;
@@ -553,13 +503,9 @@ border-radius: 50%; animation: spin .7s linear infinite;
 vertical-align: middle; margin-left: 6px;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
-
-/* ─── REL OPTIONS ─── */
 .rel-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 1rem; }
 .rel-opt { display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; color: var(--text-2); }
 .rel-opt input { accent-color: var(--accent); }
-
-/* ─── DROP ZONE ─── */
 .drop-zone {
 border: 2px dashed var(--border-2); border-radius: var(--radius-lg);
 padding: 2.5rem; text-align: center; cursor: pointer;
@@ -571,8 +517,6 @@ border-color: var(--accent); background: var(--accent-glow);
 .drop-zone-icon { font-size: 40px; margin-bottom: .5rem; }
 .drop-zone h4 { font-size: 14px; font-weight: 700; color: var(--text); }
 .drop-zone p  { font-size: 12px; color: var(--text-3); margin-top: 4px; }
-
-/* ─── MISC ─── */
 .copy-btn {
 font-size: 11px; background: var(--input-bg); color: var(--text-2);
 border: 1px solid var(--border-2); border-radius: 4px;
@@ -580,7 +524,6 @@ padding: 2px 8px; cursor: pointer; margin-left: 6px;
 }
 .copy-btn:hover { background: var(--navy-3); color: var(--text); }
 .mono { font-family: 'JetBrains Mono', monospace; }
-/* ─── URGÊNCIA ─── */
 .urgencia-vermelho { border-left: 3px solid var(--red) !important; }
 .urgencia-vermelho td:first-child { border-left: 3px solid var(--red); }
 .urgencia-amarelo  { border-left: 3px solid var(--amber) !important; }
@@ -592,8 +535,6 @@ padding: 2px 8px; cursor: pointer; margin-left: 6px;
 .urg-badge.a { background:rgba(242,153,74,.18);color:var(--amber); }
 .urg-badge.g { background:rgba(39,174,96,.18);color:var(--green); }
 .urg-badge.c { background:rgba(74,96,128,.18);color:var(--text-2); }
-
-/* ─── DASHBOARD ─── */
 .dashboard-section { margin-bottom:1.25rem; }
 .dashboard-title { font-size:11px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.6rem; }
 .prox-card {
@@ -613,8 +554,6 @@ margin-bottom:6px;cursor:pointer;transition:background .15s;
 .prox-date-box.urgA .dow,.prox-date-box.urgA .dom { color:var(--amber); }
 .prox-date-box.urgG .dow,.prox-date-box.urgG .dom { color:var(--green); }
 .prox-sep { width:1px;height:32px;background:var(--border-2);flex-shrink:0; }
-
-/* ─── CALENDÁRIO ─── */
 .cal-wrap { background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px; }
 .cal-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:10px; }
 .cal-nav { background:none;border:none;color:var(--text-2);font-size:16px;cursor:pointer;padding:2px 8px;border-radius:6px; }
@@ -631,8 +570,6 @@ margin-bottom:6px;cursor:pointer;transition:background .15s;
 .cal-legend { display:flex;gap:12px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border); }
 .cal-legend-item { display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text-2); }
 .cal-dot { width:6px;height:6px;border-radius:50%; }
-
-/* ─── BUSCA RÁPIDA ─── */
 .search-overlay {
 display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);
 z-index:400;align-items:flex-start;justify-content:center;
@@ -650,8 +587,6 @@ padding-top:15vh;
 .search-empty { padding:24px;text-align:center;color:var(--text-3);font-size:13px; }
 .search-footer { padding:8px 16px;border-top:1px solid var(--border);display:flex;gap:16px; }
 .search-hint { font-size:11px;color:var(--text-3); }
-
-/* ─── INLINE STATUS BUTTONS ─── */
 .status-btns { display:flex;gap:4px;flex-wrap:wrap; }
 .sbtn { font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;cursor:pointer;border:1px solid;transition:all .12s; }
 .sbtn.R { background:rgba(39,174,96,.12);color:var(--green);border-color:rgba(39,174,96,.25); }
@@ -660,13 +595,9 @@ padding-top:15vh;
 .sbtn.C:hover { background:rgba(235,87,87,.25); }
 .sbtn.M { background:rgba(242,153,74,.12);color:var(--amber);border-color:rgba(242,153,74,.25); }
 .sbtn.M:hover { background:rgba(242,153,74,.25); }
-
-/* ─── VIEW TOGGLE ─── */
 .view-toggle { display:flex;gap:0;background:var(--card-bg-2);border-radius:8px;padding:2px; }
 .vtbtn { font-size:11px;font-weight:600;padding:4px 12px;border:none;background:none;color:var(--text-2);cursor:pointer;border-radius:6px;transition:all .15s; }
 .vtbtn.active { background:var(--accent);color:#fff; }
-
-/* ─── CARDS VIEW ─── */
 .cards-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px; }
 .aud-card {
 background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);
@@ -682,15 +613,11 @@ padding:12px;cursor:pointer;transition:all .15s;
 .aud-card-proc { font-size:10px;font-family:monospace;color:var(--text-2);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
 .aud-card-vara { font-size:11px;color:var(--text-2);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
 .aud-card-bottom { display:flex;align-items:center;justify-content:space-between;margin-top:6px; }
-
-/* ─── EXPAND ROW ─── */
 .expand-row td { padding:0!important;border:none!important; }
 .expand-inner { padding:12px 16px;background:var(--navy-3);border-bottom:1px solid var(--border); }
 .expand-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-bottom:10px; }
 .expand-field label { font-size:9px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:2px; }
 .expand-field span { font-size:12px;color:var(--text); }
-
-/* ─── RESPONSIVE ─── */
 @media (max-width: 768px) {
 :root { --sidebar-w: 0px; }
 .sidebar { transform: translateX(-220px); }
@@ -1178,22 +1105,15 @@ MODAIS
 </div>
 </div>
 <script>
-// Polyfill: hide old avatar img reference (no longer exists)
 const _imgProxy = new Proxy({}, { set(){ return true; }, get(){ return ''; } });
 
 <script>
-// ════════════════════════════════════════════════════════════════
-// CONFIGURAÇÃO — edite aqui após criar suas credenciais Google
-// ════════════════════════════════════════════════════════════════
 const CONFIG = {
 ORG_NAME:     localStorage.getItem('cfg_org_name')     || 'Subprocuradoria Contenciosa — Município de Porto Velho',
 PROC_PADRAO:  localStorage.getItem('cfg_proc_nome')    || 'Dr. Junior',
 PROC_WPP:     localStorage.getItem('cfg_proc_wpp')     || '',
 };
 
-// ════════════════════════════════════════════════════════════════
-// ESTADO GLOBAL
-// ════════════════════════════════════════════════════════════════
 let dados        = [];
 let procuradores = {};
 let usuarios     = [];
@@ -1206,9 +1126,6 @@ let lastSync     = null;
 
 const HOJE = new Date(); HOJE.setHours(0,0,0,0);
 
-// ════════════════════════════════════════════════════════════════
-// UTILITÁRIOS
-// ════════════════════════════════════════════════════════════════
 const dataBr   = s => { if(!s) return ''; const p=s.split('-'); return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:s; };
 const dataISO  = s => { if(!s) return ''; const p=s.split('/'); return p.length===3?`${p[2]}-${p[1]}-${p[0]}`:s; };
 const parseData= s => { if(!s) return null; const d=new Date(s+'T00:00:00'); return isNaN(d)?null:d; };
@@ -1234,15 +1151,11 @@ if(!procuradores[k]) procuradores[k]={nome:nome.trim(),wpp:''};
 if(wpp && wpp.replace(/\D/g,'').length>=10) procuradores[k].wpp=wpp.replace(/\D/g,'');
 }
 
-// WhatsApp SVG
 const svgWpp=`<svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
 <circle cx="16" cy="16" r="16" fill="#25D366"/>
 <path d="M23.5 8.5C21.6 6.6 19.1 5.5 16.4 5.5C10.8 5.5 6.2 10.1 6.2 15.7C6.2 17.6 6.7 19.4 7.6 21L6.1 26.5L11.7 25C13.2 25.8 14.8 26.2 16.4 26.2C22 26.2 26.6 21.6 26.6 16C26.6 13.3 25.4 10.8 23.5 8.5ZM16.4 24.4C14.9 24.4 13.5 24 12.2 23.3L11.9 23.1L8.6 24L9.5 20.8L9.3 20.5C8.5 19.1 8.1 17.5 8.1 15.8C8.1 11.2 11.9 7.4 16.5 7.4C18.7 7.4 20.8 8.3 22.3 9.8C23.9 11.3 24.7 13.4 24.7 15.7C24.7 20.3 20.9 24.4 16.4 24.4ZM20.8 17.8C20.6 17.7 19.4 17.1 19.2 17C19 16.9 18.9 16.9 18.7 17.1C18.6 17.3 18.1 17.9 18 18C17.9 18.2 17.7 18.2 17.5 18.1C16.3 17.5 15.5 17 14.7 15.7C14.5 15.4 14.9 15.4 15.2 14.8C15.3 14.7 15.2 14.5 15.2 14.4C15.2 14.3 14.7 13.1 14.5 12.6C14.3 12.1 14.1 12.2 13.9 12.2C13.8 12.2 13.6 12.2 13.5 12.2C13.3 12.2 13 12.3 12.8 12.5C12.6 12.7 12 13.3 12 14.5C12 15.7 12.8 16.8 12.9 17C13 17.1 14.6 19.6 17.1 20.6C19 21.4 19.7 21.3 20.2 21.2C20.9 21.1 22 20.5 22.2 19.9C22.4 19.3 22.4 18.8 22.3 18.7C22.2 18.6 21 18 20.8 17.8Z" fill="white"/>
 </svg>`;
 
-// ════════════════════════════════════════════════════════════════
-// LOGIN LOCAL — SEM GOOGLE
-// ════════════════════════════════════════════════════════════════
 function carregarUsuariosLocal(){
 try { return JSON.parse(localStorage.getItem('local_usuarios')||'[]'); } catch(e){ return []; }
 }
@@ -1283,7 +1196,6 @@ document.getElementById('loginSenha').value='';
 document.getElementById('loginError').style.display='none';
 }
 
-// Funções removidas (Google OAuth) — mantidas como stub para compatibilidade
 function salvarEIniciarLogin(){}
 function redefinirClientId(){}
 function iniciarLoginGoogle(){}
@@ -1292,11 +1204,10 @@ function processarLoginGoogle(){}
 function parseJwt(){}
 function salvarConfigInicial(){}
 
-function entrar(user){
+async function entrar(user){
 currentUser = user;
 document.getElementById('loginScreen').style.display='none';
 document.getElementById('appShell').style.display='flex';
-// Sidebar user info
 const initials = (user.name||'?').split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
 const avatarEl = document.getElementById('userAvatarText');
 if(avatarEl) avatarEl.textContent = initials;
@@ -1304,11 +1215,10 @@ document.getElementById('userName').textContent = user.name;
 const roleBadge = document.getElementById('userRoleBadge');
 if(roleBadge){ roleBadge.textContent = ({admin:'Admin',editor:'Editor',leitor:'Leitor'}[user.role]||user.role); }
 if(isAdmin()){ const n=document.getElementById('nav-usuarios'); if(n) n.style.display=''; }
-// Set header date
 const hd = document.getElementById('headerDate');
 if(hd) hd.textContent = new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
 aplicarPermissoes();
-sincronizar();
+await sincronizar();
 switchTab('dashboard');
 }
 
@@ -1325,31 +1235,6 @@ document.getElementById('loginScreen').style.display='flex';
 const le=document.getElementById('loginError');if(le)le.style.display='none';
 inicializarTelaLogin();
 }
-
-// ════════════════════════════════════════════════════════════════
-// SETUP INICIAL — sem Google
-// ════════════════════════════════════════════════════════════════
-// (removido — configuração via Google Cloud não é mais necessária)
-
-// ════════════════════════════════════════════════════════════════
-// ARMAZENAMENTO LOCAL (localStorage)
-// ════════════════════════════════════════════════════════════════
-function salvarLocal(){
-localStorage.setItem('local_audiencias', JSON.stringify(dados));
-localStorage.setItem('local_procuradores', JSON.stringify(procuradores));
-}
-
-function carregarLocal(){
-try { dados = JSON.parse(localStorage.getItem('local_audiencias')||'[]'); } catch(e){ dados=[]; }
-try { procuradores = JSON.parse(localStorage.getItem('local_procuradores')||'{}'); } catch(e){ procuradores={}; }
-registrarProcurador(CONFIG.PROC_PADRAO, CONFIG.PROC_WPP);
-// Carregar usuários do sistema local
-usuarios = carregarUsuariosLocal().map(u=>({nome:u.nome||u.usuario, email:u.usuario, role:u.role, data:u.data||''}));
-}
-
-// ════════════════════════════════════════════════════════════════
-// SINCRONIZAÇÃO — agora usa localStorage
-// ════════════════════════════════════════════════════════════════
 function setSyncStatus(estado, msg){
 const dot=document.getElementById('syncDot');
 const txt=document.getElementById('syncMsg');
@@ -1360,52 +1245,85 @@ else if(estado==='ok'){dot.classList.add('ok');txt.textContent=msg;const st=docu
 else{dot.classList.add('err');txt.textContent=msg;}
 }
 
-function sincronizar(){
-setSyncStatus('loading','Carregando dados...');
-carregarDadosPlanilha();
-carregarLocal();
-setSyncStatus('ok', `Dados carregados — ${dados.length} audiências.`);
-atualizar();
-renderUsuarios();
-atualizarResumoXlsx();
-renderDashboard();
+function rowToAud(r){
+return {
+_id: r.id, processo: r.processo||'', data: r.data||'', hora: r.hora||'',
+vara: r.vara||'', tipo: r.tipo||'Instrução e Julgamento',
+partes: r.partes||'', procurador: r.procurador||'',
+wppProcurador: r.wpp_procurador||'', link: r.link||'',
+situacao: r.situacao||'Agendada', resultado: r.resultado||'',
+obs: r.obs||'', _rowId: r.id
+};
 }
 
-async function salvarAudienciasNoSheet(){
-salvarLocal();
-setSyncStatus('ok','Dados salvos.');
+function audToRow(r){
+return {
+processo: r.processo, data: r.data||null, hora: r.hora,
+vara: r.vara, tipo: r.tipo, partes: r.partes,
+procurador: r.procurador, wpp_procurador: r.wppProcurador,
+link: r.link, situacao: r.situacao, resultado: r.resultado, obs: r.obs
+};
 }
 
-async function salvarProcuradoresNoSheet(){
-salvarLocal();
+async function sincronizar(){
+if(typeof supabase === 'undefined'){
+setSyncStatus('err','Biblioteca Supabase não carregada. Verifique sua conexão.');
+return;
 }
-
-async function salvarUsuariosNoSheet(){
-// Sincronizar de volta para a lista de usuários locais
-const lista = carregarUsuariosLocal();
-usuarios.forEach(u=>{
-const found = lista.find(l=>l.usuario===u.email);
-if(found){ found.nome=u.nome; found.role=u.role; }
-else lista.push({usuario:u.email, senha:'123456', nome:u.nome, role:u.role, data:u.data});
-});
-salvarUsuariosLocal(lista);
-}
-
-function limparTodosDados(){
-if(!confirm('Isso apagará TODAS as audiências e procuradores salvos. Deseja continuar?')) return;
-localStorage.removeItem('local_audiencias');
-localStorage.removeItem('local_procuradores');
-dados=[]; procuradores={};
+setSyncStatus('loading','Conectando ao banco...');
+try {
+const { data: rows, error } = await supa.from('audiencias').select('*').order('data').order('hora');
+if(error) throw error;
+dados = (rows||[]).map(rowToAud);
+const { data: procs } = await supa.from('agenda_procuradores').select('*');
+procuradores = {};
+(procs||[]).forEach(p=>{ procuradores[normNome(p.nome)]={nome:p.nome,wpp:p.wpp||''}; });
 registrarProcurador(CONFIG.PROC_PADRAO, CONFIG.PROC_WPP);
-atualizar();
-setSyncStatus('ok','Dados apagados.');
+setSyncStatus('ok', `${dados.length} audiências carregadas.`);
+atualizar(); renderUsuarios(); atualizarResumoXlsx(); renderDashboard();
+} catch(e){
+setSyncStatus('err','Erro ao conectar: '+e.message);
+}
 }
 
-function salvarSheetId(){ alert('Conexão com Google Sheets removida. Dados salvos localmente.'); }
+async function dbSalvarAudiencia(r){
+const row = audToRow(r);
+if(r._id){
+const { error } = await supa.from('audiencias').update(row).eq('id',r._id);
+if(error) throw error;
+return r._id;
+} else {
+const { data, error } = await supa.from('audiencias').insert(row).select().single();
+if(error) throw error;
+return data.id;
+}
+}
 
-// ════════════════════════════════════════════════════════════════
-// LÓGICA DE NEGÓCIO
-// ════════════════════════════════════════════════════════════════
+async function dbDeletarAudiencia(id){
+const { error } = await supa.from('audiencias').delete().eq('id',id);
+if(error) throw error;
+}
+
+async function dbSalvarProcurador(nome, wpp){
+await supa.from('agenda_procuradores').upsert({nome,wpp},{onConflict:'nome'});
+}
+
+function salvarLocal(){ localStorage.setItem('local_audiencias', JSON.stringify(dados)); }
+function carregarLocal(){}
+
+async function salvarAudienciasNoSheet(){ setSyncStatus('ok','Salvo.'); }
+async function salvarProcuradoresNoSheet(){}
+async function salvarUsuariosNoSheet(){}
+
+async function limparTodosDados(){
+if(!confirm('Isso apagará TODAS as audiências do banco. Deseja continuar?')) return;
+const { error } = await supa.from('audiencias').delete().neq('id','00000000-0000-0000-0000-000000000000');
+if(error){ alert('Erro: '+error.message); return; }
+dados=[]; atualizar(); setSyncStatus('ok','Todos os dados apagados.');
+}
+
+function salvarSheetId(){}
+
 function detectarConflitos(){
 const g={};
 dados.forEach((r,i)=>{
@@ -1440,14 +1358,10 @@ const am=amanhaISO();
 const prox=dados.filter(r=>r.situacao==='Agendada'&&(r.data===hj||r.data===am));
 if(prox.length) bars.innerHTML+=`<div class="alert aviso">Atenção: ${prox.length} audiência(s) agendada(s) para hoje ou amanhã.</div>`;
 if(nc) bars.innerHTML+=`<div class="alert conflito">⚠️ Conflito detectado: ${nc} horário(s) com audiências simultâneas em varas distintas.</div>`;
-// Update sidebar conflict badge
 const nb=document.getElementById('navBadgeConflitos');
 if(nb){nb.textContent=nc;nb.style.display=nc>0?'':'none';}
 }
 
-// ════════════════════════════════════════════════════════════════
-// RENDER TABELA
-// ════════════════════════════════════════════════════════════════
 function renderTabela(){
 const txt=document.getElementById('filtroTexto').value.toLowerCase();
 const dt =document.getElementById('filtroData').value;
@@ -1468,7 +1382,6 @@ return true;
 
 document.getElementById('emptyMsg').style.display=filtrado.length===0?'block':'none';
 
-// ── CARDS VIEW ──
 if(_viewMode==='cards'){
 const cv=document.getElementById('cardsView');
 if(!cv) return;
@@ -1496,7 +1409,6 @@ cv.appendChild(div);
 return;
 }
 
-// ── TABLE VIEW ──
 const tbody=document.getElementById('corpoTabela');
 tbody.innerHTML='';
 
@@ -1552,9 +1464,6 @@ sel.value=val;
 });
 }
 
-// ════════════════════════════════════════════════════════════════
-// RENDER OUTRAS ABAS
-// ════════════════════════════════════════════════════════════════
 function renderConflitos(){
 const conflitos=detectarConflitos(); const chaves=Object.keys(conflitos).sort();
 let html='';
@@ -1652,9 +1561,6 @@ tbody.appendChild(tr);
 });
 }
 
-// ════════════════════════════════════════════════════════════════
-// WHATSAPP
-// ════════════════════════════════════════════════════════════════
 function montarMensagem(r, tipo){
 const lk=r.link?`\n*Link de acesso:* ${r.link}`:'';
 const ob=r.obs?`\n*Obs.:* ${r.obs}`:'';
@@ -1672,9 +1578,6 @@ const p=procuradores[k]; if(!p?.wpp){alert('WhatsApp não cadastrado.');return;}
 window.open(`https://wa.me/55${p.wpp}?text=${encodeURIComponent('Olá '+p.nome+'. Teste da Agenda de Audiências — Subprocuradoria Contenciosa.')}`,'_blank');
 }
 
-// ════════════════════════════════════════════════════════════════
-// AUTOCOMPLETE PROCURADOR
-// ════════════════════════════════════════════════════════════════
 function acProc(val){
 const list=document.getElementById('acList');
 if(!val||val.length<2){list.style.display='none';return;}
@@ -1705,9 +1608,6 @@ if(wpp.length>=10&&nome){h2.className='hint new';h2.textContent='Número será s
 else h2.textContent='';
 }
 
-// ════════════════════════════════════════════════════════════════
-// MODAIS — AUDIÊNCIA
-// ════════════════════════════════════════════════════════════════
 function abrirModal(idx=null){
 if(!isEditor()){alert('Seu perfil é de Leitor. Não é possível editar audiências.');return;}
 editIdx=idx; const r=idx!==null?dados[idx]:{};
@@ -1738,17 +1638,19 @@ if(!proc||!data){alert('Preencha ao menos o número do processo e a data.');retu
 const nomePr=document.getElementById('fProc2').value.trim()||CONFIG.PROC_PADRAO;
 const wppPr=document.getElementById('fWpp').value.replace(/\D/g,'');
 registrarProcurador(nomePr,wppPr);
-const reg={processo:proc,data,hora:document.getElementById('fHora').value,vara:document.getElementById('fVara').value.trim(),tipo:document.getElementById('fTipo').value,procurador:nomePr,wppProcurador:wppPr||wppDe(nomePr),link:document.getElementById('fLink').value.trim(),partes:document.getElementById('fPartes').value.trim(),situacao:document.getElementById('fSituacao').value,resultado:document.getElementById('fResultado').value,obs:document.getElementById('fObs').value.trim(),_rowId:editIdx!==null?dados[editIdx]._rowId:Date.now()};
-if(editIdx!==null) dados[editIdx]=reg; else dados.push(reg);
+const reg={processo:proc,data,hora:document.getElementById('fHora').value,vara:document.getElementById('fVara').value.trim(),tipo:document.getElementById('fTipo').value,procurador:nomePr,wppProcurador:wppPr||wppDe(nomePr),link:document.getElementById('fLink').value.trim(),partes:document.getElementById('fPartes').value.trim(),situacao:document.getElementById('fSituacao').value,resultado:document.getElementById('fResultado').value,obs:document.getElementById('fObs').value.trim()};
+if(editIdx!==null) reg._id=dados[editIdx]._id;
 fecharModal();
-await salvarAudienciasNoSheet();
-await salvarProcuradoresNoSheet();
-atualizar();
+setSyncStatus('loading','Salvando...');
+try {
+const id = await dbSalvarAudiencia(reg);
+reg._id=reg._id||id; reg._rowId=reg._id;
+if(editIdx!==null) dados[editIdx]={...reg}; else dados.push(reg);
+await dbSalvarProcurador(nomePr, wppPr||wppDe(nomePr));
+setSyncStatus('ok','Audiência salva.'); atualizar();
+} catch(e){ setSyncStatus('err','Erro ao salvar: '+e.message); }
 }
 
-// ════════════════════════════════════════════════════════════════
-// MODAIS — PROCURADOR
-// ════════════════════════════════════════════════════════════════
 function abrirModalProc(k=null){
 if(!isEditor()){alert('Acesso restrito.');return;}
 editProcKey=k; const p=k?procuradores[k]:{};
@@ -1762,10 +1664,9 @@ async function salvarProc(){
 const nome=document.getElementById('pNome').value.trim();
 const wpp=document.getElementById('pWpp').value.replace(/\D/g,'');
 if(!nome){alert('Informe o nome.');return;}
-if(wpp&&wpp.length<10){alert('WhatsApp inválido.');return;}
 procuradores[normNome(nome)]={nome,wpp};
 fecharModalProc();
-await salvarProcuradoresNoSheet();
+await dbSalvarProcurador(nome,wpp);
 renderProcuradores(); atualizar();
 }
 function excluirProc(k){
@@ -1775,9 +1676,6 @@ salvarProcuradoresNoSheet();
 renderProcuradores();
 }
 
-// ════════════════════════════════════════════════════════════════
-// MODAIS — USUÁRIO (admin only)
-// ════════════════════════════════════════════════════════════════
 function abrirModalUsuario(idx=null){
 editUserIdx=idx;
 const lista = carregarUsuariosLocal();
@@ -1845,9 +1743,6 @@ tbody.appendChild(tr);
 });
 }
 
-// ════════════════════════════════════════════════════════════════
-// IMPORTAÇÃO
-// ════════════════════════════════════════════════════════════════
 async function importarArquivo(event){
 const file=event.target.files[0]; if(!file)return; event.target.value='';
 if(file.name.toLowerCase().endsWith('.pdf')) await importarPDF(file);
@@ -1859,14 +1754,9 @@ pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/p
 const ab = await file.arrayBuffer();
 const pdfDoc = await pdfjsLib.getDocument({data:ab}).promise;
 
-// ── Parser para Pauta de Audiência do PJe ──────────────────────
-// Cada página tem uma tabela. Reconstruímos as linhas usando posição Y dos itens de texto.
 const procRe = /\d{7}-\s*\d{2}\.\d{4}\.\d\.\d{2}\.\d{4}/;
 const dataRe = /^(\d{2})\/(\d{2})\/(\d{2})\s+(\d{2}:\d{2})$/;
 
-// Nomes das colunas por posição X aproximada (% da largura da página)
-// Col 0: Data+hora  Col 1: Processo  Col 2: Órgão  Col 3: Partes
-// Col 4: Classe     Col 5: Tipo      Col 6: Sala   Col 7: Situação
 const COL_BREAKS = [0, 0.09, 0.19, 0.32, 0.59, 0.68, 0.78, 0.88, 1.01];
 
 function getCol(x, pageW){ for(let i=0;i<COL_BREAKS.length-1;i++){ if(x/pageW>=COL_BREAKS[i]&&x/pageW<COL_BREAKS[i+1])return i; } return 7; }
@@ -1881,8 +1771,6 @@ if(s.includes('redesignada'))return 'Remarcada';
 return 'Agendada';
 }
 
-// Agrupar itens de texto por linha (Y próximo = mesma linha lógica)
-// Depois agrupar linhas por "grupo de registro" (começa com data+hora)
 const novos = [];
 for(let pi=1; pi<=pdfDoc.numPages; pi++){
 const page = await pdfDoc.getPage(pi);
@@ -1890,7 +1778,6 @@ const viewport = page.getViewport({scale:1});
 const content = await page.getTextContent();
 const W = viewport.width;
 
-// Agrupar por Y (tolerância 4pt)
 const linhaMap = {};
 for(const item of content.items){
 if(!item.str.trim()) continue;
@@ -1898,20 +1785,16 @@ const y = Math.round(item.transform[5]/4)*4;
 if(!linhaMap[y]) linhaMap[y] = [];
 linhaMap[y].push({x: item.transform[4], str: item.str.trim()});
 }
-// Ordenar Y decrescente (topo → baixo)
 const ysOrdenados = Object.keys(linhaMap).map(Number).sort((a,b)=>b-a);
 
-// Montar registros: cada grupo começa com célula de data+hora
 let regAtual = null;
 for(const y of ysOrdenados){
 const itens = linhaMap[y].sort((a,b)=>a.x-b.x);
-// Montar células por coluna
 const celulas = Array(8).fill('');
 for(const it of itens){
 const col = getCol(it.x, W);
 celulas[col] = (celulas[col] ? celulas[col]+' ' : '') + it.str;
 }
-// Detecta nova linha de registro: col0 tem "DD/MM/YY HH:MM"
 const m = dataRe.exec(celulas[0].trim());
 if(m){
 if(regAtual) novos.push(regAtual);
@@ -1931,7 +1814,6 @@ resultado:'', obs: celulas[6].trim().slice(0,80),
 _rowId: normProc(pm[0])+'_'+dataISO+'_'+m[4]
 };
 } else if(regAtual){
-// Linha de continuação: acumula nas colunas relevantes
 for(let c=0;c<8;c++){
 if(!celulas[c]) continue;
 if(c===2) regAtual.vara = (regAtual.vara+' '+celulas[c]).trim().slice(0,80);
@@ -1949,15 +1831,18 @@ alert('Não foi possível identificar audiências neste PDF. Verifique se é uma
 return;
 }
 
-if(!confirm(`Importar ${novos.length} audiência(s) do PDF?\nOs dados serão ADICIONADOS à lista existente (não substitui).`)) return;
-
-// Deduplicar por _rowId
-const existentes = new Set(dados.map(d=>d._rowId));
-const novosUnicos = novos.filter(n=>!existentes.has(n._rowId));
-dados = [...dados, ...novosUnicos];
-salvarLocal();
-atualizar();
-setSyncStatus('ok', `${novosUnicos.length} audiência(s) importadas do PDF (${novos.length-novosUnicos.length} duplicadas ignoradas).`);
+if(!confirm(`Importar ${novos.length} audiência(s) do PDF?\nOs dados serão ADICIONADOS à lista existente.`)) return;
+setSyncStatus('loading','Salvando no banco...');
+try {
+const rows = novos.map(r=>({processo:r.processo,data:r.data||null,hora:r.hora,vara:r.vara,tipo:r.tipo,partes:r.partes,procurador:r.procurador,wpp_procurador:r.wppProcurador,link:r.link,situacao:r.situacao,resultado:r.resultado,obs:r.obs}));
+const chunks=[];
+for(let i=0;i<rows.length;i+=50) chunks.push(rows.slice(i,i+50));
+for(const chunk of chunks){
+const {error}=await supa.from('audiencias').upsert(chunk,{onConflict:'processo,data,hora',ignoreDuplicates:true});
+if(error) throw error;
+}
+await sincronizar();
+} catch(e){ setSyncStatus('err','Erro ao salvar: '+e.message); }
 }
 function importarCSVFile(file){
 const reader=new FileReader();
@@ -1985,9 +1870,6 @@ alert(`${novos.length} audiência(s) importadas com sucesso.`);
 reader.readAsText(file,'UTF-8');
 }
 
-// ════════════════════════════════════════════════════════════════
-// EXPORTAÇÃO
-// ════════════════════════════════════════════════════════════════
 function exportarCSV(){
 if(!dados.length){alert('Não há dados.');return;}
 const header=['Processo','Data','Hora','Vara/Juízo','Tipo','Partes','Procurador','WhatsApp','Link','Situação','Resultado','Observações'];
@@ -2000,9 +1882,6 @@ URL.revokeObjectURL(url);
 }
 function exportarPDFTabela(){ gerarRelatorioPDF(true); }
 
-// ════════════════════════════════════════════════════════════════
-// GERAÇÃO DE RELATÓRIO PDF
-// ════════════════════════════════════════════════════════════════
 async function gerarRelatorioPDF(soPauta=false){
 if(typeof PDFLib==='undefined'){alert('Biblioteca PDF ainda carregando. Aguarde.');return;}
 const btn=document.getElementById('btnGerarRel');
@@ -2026,13 +1905,11 @@ words.forEach(w=>{const tent=(ln?ln+' ':'')+w;if(fR.widthOfTextAtSize(tent,sz)>m
 if(ln){page.drawText(ln,{x:mL+xE,y,size:sz,font:fR,color:cor});y-=sz+4;}
 }
 const agora=new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
-// CAPA
 page.drawRectangle({x:0,y:H-80,width:W,height:80,color:cAzul});
 page.drawText(CONFIG.ORG_NAME,{x:mL,y:H-35,size:13,font:fB,color:rgb(1,1,1)});
 page.drawText('RELATÓRIO DE PAUTA DE AUDIÊNCIAS — CONTENCIOSO EM MASSA',{x:mL,y:H-54,size:10,font:fR,color:rgb(.8,.88,.95)});
 page.drawText(agora,{x:mL,y:H-70,size:9,font:fR,color:rgb(.7,.8,.9)});
 y=H-110;rodape();
-// Filtros
 const dI=document.getElementById('relDataIni')?.value||'';
 const dF=document.getElementById('relDataFim')?.value||'';
 const sit2=document.getElementById('relSituacao')?.value||'';
@@ -2044,7 +1921,6 @@ if(dI&&r.data<dI)return false;
 if(dF&&r.data>dF)return false;
 return true;
 });
-// SUMÁRIO
 if(soPauta||document.getElementById('rOpcSumario').checked){
 subtit('1. Sumário Executivo');
 txt(dI&&dF?`Período: ${dataBr(dI)} a ${dataBr(dF)}`:'Período: todas as audiências registradas',9,cCinza);y-=4;
@@ -2061,7 +1937,6 @@ y-=56;
 if(nc>0){ck(20);page.drawText(`Atenção: ${nc} conflito(s) de horário detectado(s).`,{x:mL,y,size:9,font:fB,color:cAmbar});y-=16;}
 y-=8;
 }
-// PAUTA
 if(soPauta||document.getElementById('rOpcPauta').checked){
 subtit('2. Pauta de Audiências');
 const sorted=ds.sort((a,b)=>(a.data||'').localeCompare(b.data||'')||(a.hora||'').localeCompare(b.hora||''));
@@ -2080,7 +1955,6 @@ y-=60;
 });
 y-=6;
 }
-// CONFLITOS
 if(!soPauta&&document.getElementById('rOpcConflitos').checked){
 const conf=detectarConflitos();const chs=Object.keys(conf).sort();
 subtit('3. Conflitos de Horário');
@@ -2097,7 +1971,6 @@ y-=4;
 }
 y-=6;
 }
-// DISTRIBUIÇÃO
 if(!soPauta&&document.getElementById('rOpcDistribuicao').checked){
 const prcs={};dados.forEach(r=>{const p=r.procurador||'(não atribuído)';if(!prcs[p])prcs[p]={total:0,realizadas:0,agendadas:0,canceladas:0};prcs[p].total++;if(r.situacao==='Realizada')prcs[p].realizadas++;if(r.situacao==='Agendada')prcs[p].agendadas++;if(r.situacao==='Cancelada')prcs[p].canceladas++;});
 subtit('4. Distribuição por Procurador');
@@ -2111,7 +1984,6 @@ y-=16;page.drawLine({start:{x:mL,y:y+4},end:{x:W-mR,y:y+4},thickness:.3,color:cL
 });
 y-=6;
 }
-// RESULTADOS
 if(!soPauta&&document.getElementById('rOpcResultados').checked){
 const real=dados.filter(r=>r.situacao==='Realizada'&&r.resultado);
 subtit('5. Resultados e Desfechos');
@@ -2124,7 +1996,6 @@ real.slice(0,15).forEach(r=>{ck(40);page.drawText(`Proc. ${r.processo||'—'} �
 }
 y-=6;
 }
-// OBSERVAÇÕES
 if(!soPauta&&document.getElementById('rOpcObs').checked){
 const obs=dados.filter(r=>r.obs&&r.obs.trim());
 subtit('6. Observações Registradas');
@@ -2139,9 +2010,6 @@ URL.revokeObjectURL(url);
 if(btn){btn.innerHTML='Gerar relatório em PDF';btn.disabled=false;}
 }
 
-// ════════════════════════════════════════════════════════════════
-// CONFIG
-// ════════════════════════════════════════════════════════════════
 function salvarConfig(){
 CONFIG.ORG_NAME=document.getElementById('cfgOrgao').value.trim();
 CONFIG.PROC_PADRAO=document.getElementById('cfgProcNome').value.trim();
@@ -2153,9 +2021,6 @@ registrarProcurador(CONFIG.PROC_PADRAO,CONFIG.PROC_WPP);
 alert('Configurações salvas.');
 atualizar();
 }
-// ════════════════════════════════════════════════════════════════
-// TABS & ATUALIZAR
-// ════════════════════════════════════════════════════════════════
 function atualizar(){atualizarStats();atualizarFiltroProcurador();renderTabela();}
 
 function switchTab(nome){
@@ -2179,17 +2044,12 @@ document.getElementById('cfgOrgao').value=CONFIG.ORG_NAME;
 }
 }
 
-// Fechar modais ao clicar fora
 ['modalBg','modalProcBg','modalUserBg'].forEach(id=>{
 document.getElementById(id).addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
 });
-// ════════════════════════════════════════════════════════════════
-// DADOS INICIAIS DA PLANILHA XLSX
-// ════════════════════════════════════════════════════════════════
 const DADOS_PLANILHA_INICIAL = [];
 
 function carregarDadosPlanilha() {
-// Se não há dados locais salvos ainda, carrega os dados da planilha inicial
 const existente = localStorage.getItem('local_audiencias');
 if(!existente || JSON.parse(existente).length === 0) {
 dados = JSON.parse(JSON.stringify(DADOS_PLANILHA_INICIAL));
@@ -2197,9 +2057,6 @@ salvarLocal();
 }
 }
 
-// ════════════════════════════════════════════════════════════════
-// IMPORTAÇÃO DE XLSX NO CLIENTE (SheetJS)
-// ════════════════════════════════════════════════════════════════
 function importarXlsx(file) {
 if(!file) return;
 const status = document.getElementById('xlsxStatus');
@@ -2233,7 +2090,6 @@ let dataObj;
 if(dataHora instanceof Date) {
 dataObj = dataHora;
 } else if(typeof dataHora === 'number') {
-// Número serial do Excel
 dataObj = new Date(Math.round((dataHora - 25569) * 86400 * 1000));
 } else {
 try { dataObj = new Date(dataHora); } catch(e) { return; }
@@ -2246,17 +2102,14 @@ const procurador = String(row[3]||'').trim();
 const resumo = String(row[4]||'').replace(/\n/g,' ').trim();
 const obsLink = String(row[5]||'').replace(/\n/g,' ').trim();
 
-// Extrair número do processo
 const mProc = procPartes.match(procRe);
 const processo = mProc ? mProc[0] : '';
 const partes = procPartes.replace(processo,'').trim();
 
-// Extrair tipo entre parênteses
 const mTipo = varaRaw.match(/\(([^)]+)\)/);
 const tipo = mTipo ? mTipo[1].trim() : 'Instrução e Julgamento';
 const vara = varaRaw.replace(/\s*\([^)]+\)/,'').trim();
 
-// Link
 const mLink = linkRe.exec(obsLink) || linkRe.exec(resumo);
 const link = mLink ? mLink[0] : '';
 const obs = (!linkRe.test(obsLink) ? obsLink : '').slice(0,400) || resumo.slice(0,400);
@@ -2283,9 +2136,17 @@ return;
 
 if(!confirm(`Importar ${novos.length} audiências da planilha? Os dados atuais serão substituídos.`)) return;
 
-dados = novos;
-salvarLocal();
-atualizar();
+setSyncStatus('loading','Salvando no banco...');
+try {
+const chunks = [];
+for(let i=0;i<novos.length;i+=50) chunks.push(novos.slice(i,i+50));
+for(const chunk of chunks){
+const rows = chunk.map(r=>({processo:r.processo,data:r.data||null,hora:r.hora,vara:r.vara,tipo:r.tipo,partes:r.partes,procurador:r.procurador,wpp_procurador:r.wppProcurador,link:r.link,situacao:r.situacao,resultado:r.resultado,obs:r.obs}));
+const {error} = await supa.from('audiencias').upsert(rows,{onConflict:'processo,data,hora',ignoreDuplicates:false});
+if(error) throw error;
+}
+await sincronizar();
+} catch(e){ setSyncStatus('err','Erro ao salvar: '+e.message); }
 
 status.style.background='var(--green-bg)';status.style.borderColor='rgba(39,174,96,.2)';status.style.color='var(--green)';
 status.textContent=`✅ ${novos.length} audiências importadas com sucesso!`;
@@ -2318,9 +2179,6 @@ return `${nomes[+mes]}/${ano}: ${q}`;
 }).join(' &nbsp;·&nbsp; ');
 el.innerHTML=`<strong>${total}</strong> audiências carregadas &nbsp;|&nbsp; ${mesesStr||'—'}`;
 }
-// ════════════════════════════════════════════════════════════════
-// URGÊNCIA
-// ════════════════════════════════════════════════════════════════
 let _urgCache = {};
 function calcUrgencia(r){
 if(r.situacao !== 'Agendada') return 'cinza';
@@ -2341,9 +2199,6 @@ const cls    = {vermelho:'v',amarelo:'a',verde:'g',cinza:'c'};
 return `<span class="urg-badge ${cls[u]}">${labels[u]}</span>`;
 }
 
-// ════════════════════════════════════════════════════════════════
-// VISUALIZAÇÃO (tabela / cards) + EXPAND ROW
-// ════════════════════════════════════════════════════════════════
 let _viewMode = 'tabela';
 let _expandIdx = null;
 
@@ -2402,17 +2257,17 @@ targetRow.after(tr);
 
 async function mudarSituacao(idx, novoStatus){
 dados[idx].situacao = novoStatus;
-salvarLocal();
 const old = document.getElementById('expandRow_'+idx);
 if(old) old.remove();
 _expandIdx = null;
+setSyncStatus('loading','Salvando...');
+try {
+await dbSalvarAudiencia(dados[idx]);
+setSyncStatus('ok', `Situação: ${novoStatus}`);
 atualizar();
-setSyncStatus('ok', `Situação atualizada para "${novoStatus}".`);
+} catch(e){ setSyncStatus('err','Erro: '+e.message); atualizar(); }
 }
 
-// ════════════════════════════════════════════════════════════════
-// BUSCA RÁPIDA
-// ════════════════════════════════════════════════════════════════
 let _searchIdx = -1;
 
 function abrirBusca(){
@@ -2465,9 +2320,6 @@ if(row){ row.scrollIntoView({behavior:'smooth',block:'center'}); toggleExpand(id
 }, 200);
 }
 
-// ════════════════════════════════════════════════════════════════
-// DASHBOARD
-// ════════════════════════════════════════════════════════════════
 let _calAno, _calMes;
 
 function renderDashboard(){
@@ -2480,7 +2332,6 @@ document.getElementById('dsSemana').textContent    = dados.filter(r=>{const d=pa
 document.getElementById('dsConflitos').textContent = nc;
 document.getElementById('dsRealizadas').textContent= dados.filter(r=>r.situacao==='Realizada').length;
 
-// Próximas
 const proximas = dados
 .filter(r=>r.situacao==='Agendada'&&r.data>=hj)
 .sort((a,b)=>(a.data+a.hora).localeCompare(b.data+b.hora))
@@ -2514,7 +2365,6 @@ ${temConf?'<span class="urg-badge v">Conflito</span>':urgBadge(r)}
 }).join('');
 }
 
-// Calendário
 const hoje = new Date();
 if(!_calAno){ _calAno=hoje.getFullYear(); _calMes=hoje.getMonth(); }
 renderCal();
@@ -2535,7 +2385,6 @@ const diasNoMes  = new Date(_calAno, _calMes+1, 0).getDate();
 const hoje = new Date(); hoje.setHours(0,0,0,0);
 const hj = hojeISO();
 
-// Mapear dias com audiência / conflito
 const diaMap = {};
 const cIdx = idxsConflito();
 dados.forEach((r,idx)=>{
@@ -2571,10 +2420,9 @@ if((e.ctrlKey||e.metaKey)&&e.key==='k'){ e.preventDefault(); abrirBusca(); }
 if(e.key==='Escape'){ fecharBusca(); }
 });
 
-window.addEventListener('load', () => {
-// Auto-login sem tela de login
+window.addEventListener('load', async () => {
 garantirAdminPadrao();
-entrar({name:'Usuário', usuario:'admin', role:'admin'});
+await entrar({name:'Usuário', usuario:'admin', role:'admin'});
 });
 </script>
 <!-- BUSCA RÁPIDA -->
