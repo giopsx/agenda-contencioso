@@ -1,5 +1,5 @@
 const _imgProxy = new Proxy({}, { set(){ return true; }, get(){ return ''; } });
-
+<script>
 const CONFIG = {
 ORG_NAME:     localStorage.getItem('cfg_org_name')     || 'Subprocuradoria Contenciosa — Município de Porto Velho',
 PROC_PADRAO:  localStorage.getItem('cfg_proc_nome')    || 'Dr. Junior',
@@ -8,7 +8,7 @@ PROC_WPP:     localStorage.getItem('cfg_proc_wpp')     || '',
 let dados        = [];
 let procuradores = {};
 let usuarios     = [];
-let currentUser  = null;
+let currentUser  = null;  // { name, email, picture, role }
 let accessToken  = null;
 let editIdx      = null;
 let editProcKey  = null;
@@ -845,7 +845,7 @@ const a=document.createElement('a');a.href=url;a.download=`relatorio_audiencias_
 URL.revokeObjectURL(url);
 if(btn){btn.innerHTML='Gerar relatório em PDF';btn.disabled=false;}
 }
-async function salvarConfig(){
+function salvarConfig(){
 CONFIG.ORG_NAME=document.getElementById('cfgOrgao').value.trim();
 CONFIG.PROC_PADRAO=document.getElementById('cfgProcNome').value.trim();
 CONFIG.PROC_WPP=document.getElementById('cfgProcWpp').value.replace(/\D/g,'');
@@ -899,7 +899,7 @@ status.style.color = 'var(--blue-800)';
 status.textContent = '⏳ Lendo planilha...';
 preview.style.display = 'none';
 const reader = new FileReader();
-reader.onload = function(e) {
+reader.onload = async function(e) {
 try {
 const wb = XLSX.read(e.target.result, {type:'array', cellDates:true});
 const novos = [];
@@ -1000,10 +1000,10 @@ if(r.situacao !== 'Agendada') return 'cinza';
 const d = parseData(r.data);
 if(!d) return 'cinza';
 const diff = Math.floor((d - HOJE) / 86400000);
-if(diff < 0)  return 'cinza';
-if(diff === 0) return 'vermelho';
-if(diff <= 2)  return 'vermelho';
-if(diff <= 7)  return 'amarelo';
+if(diff < 0)  return 'cinza';   // passada
+if(diff === 0) return 'vermelho'; // hoje
+if(diff <= 2)  return 'vermelho'; // amanhã/depois
+if(diff <= 7)  return 'amarelo';  // esta semana
 return 'verde';
 }
 function urgClass(r){ return {vermelho:'urgV',amarelo:'urgA',verde:'urgG',cinza:'urgC'}[calcUrgencia(r)]||''; }
