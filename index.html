@@ -1064,7 +1064,7 @@ MODAIS
 </div>
 </div>
 <script>const _imgProxy = new Proxy({}, { set(){ return true; }, get(){ return ''; } });
-<script>
+
 const CONFIG = {
 ORG_NAME:     localStorage.getItem('cfg_org_name')     || 'Subprocuradoria Contenciosa — Município de Porto Velho',
 PROC_PADRAO:  localStorage.getItem('cfg_proc_nome')    || 'Dr. Junior',
@@ -2071,7 +2071,7 @@ if(e.key==='Escape'){ fecharBusca(); }
 window.addEventListener('load', async () => {
 garantirAdminPadrao();
 await entrar({name:'Usuário', usuario:'admin', role:'admin'});
-});</script>
+});
 <!-- BUSCA RÁPIDA -->
 <div class="search-overlay" id="searchOverlay" onclick="if(event.target===this)fecharBusca()">
 <div class="search-box">
